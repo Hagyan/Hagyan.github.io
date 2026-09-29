@@ -1,0 +1,5 @@
+PASS: {'definitions': 204, 'joins': 407, 'terms': 494, 'arithmetic_proofs': 912, 'logic_steps': 6511, 'formula_nodes': 24012, 'aggregate_root': 6510, 'final_summary': (2535301200456458802993406410753, 0, 0)}
+PA-admissible object calculus only: not Lean, Enderton wire, or fixed-Bew verification.
+PASS: packed root table, all intermediate accumulators, lookup equations and grammar round trips.
+Encoded bit lengths: {'grammar': 120766, 'root_table': 326421, 'accumulator_table': 652033, 'combined_local_table': 1304065}
+No expanded word code computed. These are executable coding checks, not PA or Lean proofs.

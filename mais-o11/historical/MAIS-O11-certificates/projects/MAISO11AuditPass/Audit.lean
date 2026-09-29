@@ -1,0 +1,20 @@
+import AuditPass
+
+set_option warningAsError true
+
+#print MAISO11.PolynomialLobBound
+#print MAISO11.QuantitativeLobTools
+#check MAISO11.first_pass_excludes_polynomial_overhead
+#check MAISO11.internal_lob_axiom
+#check MAISO11.QuantitativeLobTools.convert
+#check MAISO11.QuantitativeLobTools.exact_cost
+#check MAISO11.QuantitativeLobTools.budget
+#check MAISO11.QuantitativeLobTools.uniform_budget
+#check MAISO11.QuantitativeLobTools.linear_premise_bound
+#check MAISO11.first_pass_and_polynomial_tools_incompatible
+
+#print axioms MAISO11.first_pass_excludes_polynomial_overhead
+#print axioms MAISO11.internal_lob_axiom
+#print axioms MAISO11.QuantitativeLobTools.uniform_budget
+#print axioms MAISO11.QuantitativeLobTools.linear_premise_bound
+#print axioms MAISO11.first_pass_and_polynomial_tools_incompatible

@@ -1,0 +1,9 @@
+name = "MAISO11TaggedPass"
+version = "0.1.0"
+defaultTargets = ["TaggedSyntax", "TaggedBounds"]
+
+[[lean_lib]]
+name = "TaggedSyntax"
+
+[[lean_lib]]
+name = "TaggedBounds"

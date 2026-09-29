@@ -1,0 +1,105 @@
+Clean-source verification. No pre-existing build products were copied.
+Source scan: no admitted proofs, custom axiom declarations, native_decide, unsafe, or implemented_by.
+
+$ lean --version
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+
+exit_code=0
+
+$ lake build quotationdemo
+✔ [2/16] Built StringQuotation
+✔ [3/16] Built StringQuotation:c.o
+✔ [4/16] Built QuotationWire
+✔ [5/16] Built QuotationWire:c.o
+✔ [6/16] Built LocalCertificates
+✔ [7/16] Built Examples
+✔ [8/16] Built LocalCertificates:c.o
+✔ [9/16] Built Examples:c.o
+✔ [10/16] Built ArithmeticTrace
+✔ [11/16] Built ArithmeticTrace:c.o
+✔ [12/16] Built TracePacking
+✔ [13/16] Built TracePacking:c.o
+✔ [14/16] Built Demo
+✔ [15/16] Built Demo:c.o
+✔ [16/16] Built quotationdemo
+Build completed successfully.
+
+exit_code=0
+
+$ lake env lean Audit.lean
+'MAISO11.Quotation.compile_correct' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_markedCode' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.rawCode_lt_scale' depends on axioms: [propext]
+'MAISO11.Quotation.quoteFragment_weight' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_weight' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_characters' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.readIdentifier_encode' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.identifier_injective' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.fresh_register' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compiled_expansion_value' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.localFormulas_derivable' depends on axioms: [propext]
+'MAISO11.Quotation.compiled_localCertificate_checked' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_certificate_characters' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_certificate_with_budget' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.boundaryExample_expansion' depends on axioms: [propext]
+'MAISO11.Quotation.doubling_length' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.doubling_quoted_length' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.arithPair_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.arithUnpair_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.readValue_encode' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.checkTrace_sound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.checkTrace_complete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.checkTrace_rejects_missing' depends on axioms: [propext]
+'MAISO11.Quotation.compiled_trace_sound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.packRefs_correct' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.packedWitness_checked' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.packedWitness_lookup' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.PackingProgram.expansion_eval' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.tracePacking_characters' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compiled_bundle_characters' depends on axioms: [propext, Quot.sound]
+MAISO11.Quotation.compile_correct {b n : Nat} (g : Grammar b n) : (compile g).eval = fun i => quoteWord b (g.words i)
+MAISO11.Quotation.compile_certificate_characters {b n : Nat} (g : Grammar b n) :
+  (compile g).certifiedWire.length ≤ 20 + (40 * g.mass + 100) * (4 * (b + 4) * g.mass ^ 2 + 3 * g.mass)
+MAISO11.Quotation.compiled_localCertificate_checked {b n : Nat} (g : Grammar b n) :
+  checkLines [] (localCertificate (compile g).terms) = some (universalRefl :: localFormulas (compile g).terms)
+MAISO11.Quotation.compiled_trace_sound {b n : Nat} (g : Grammar b n) (z : Nat) (h : checkTrace (compile g) z = true)
+  (i : Fin n) : readValue z ↑i = some (quoteWord b (g.words i))
+MAISO11.Quotation.packedWitness_lookup {b n : Nat} (g : Grammar b n) (i : Fin n) :
+  readValue (packedWitness (compile g)) ↑i = some (quoteWord b (g.words i))
+MAISO11.Quotation.compiled_bundle_characters {b n : Nat} (g : Grammar b n) :
+  ((compile g).certifiedWire ++ (tracePacking n).wire).length ≤
+    20 + (40 * g.mass + 100) * (4 * (b + 4) * g.mass ^ 2 + 3 * g.mass) + (8 * g.mass + 20) * (112 * g.mass)
+
+exit_code=0
+
+$ lake exe quotationdemo
+Boundary-crossing example: mass 14; quotation definitions 1216 characters; local certificate 3874 characters.
+Expanded final fragment: (>(=00)(=00))
+Length: 13; marked base-128 code: 3259009568002627364664906921.
+Additional encoded-trace definitions: 1569 characters; complete fragment 5443 characters.
+Doubling 8: input mass 26; expanded length 256; definitions 1465 characters; local certificate 5113 characters; extra trace definitions 5671 characters.
+Doubling 16: input mass 50; expanded length 65536; definitions 3089 characters; local certificate 10697 characters; extra trace definitions 11921 characters.
+Doubling 32: input mass 98; expanded length 4294967296; definitions 6643 characters; local certificate 22871 characters; extra trace definitions 25643 characters.
+Doubling 64: input mass 194; expanded length 18446744073709551616; definitions 14379 characters; local certificate 49287 characters; extra trace definitions 55677 characters.
+These are quotation and local equality certificates, not proofs of Bew or of MAIS-O11.
+
+exit_code=0
+
+$ python3 check_local_file.py boundary-quotation.pabin --self-test
+Accepted local fragment: 9 definitions, 19 proof lines, 3874 characters.
+Rejected deliberately reversed MP references.
+Rejected deliberately reused definition identifier.
+
+exit_code=0
+
+$ python3 check_local_file.py boundary-quotation-with-trace.pabin --self-test
+Accepted local fragment: 12 definitions, 19 proof lines, 5443 characters.
+Rejected deliberately reversed MP references.
+Rejected deliberately reused definition identifier.
+
+exit_code=0
+
+$ python3 verify_boundary.py
+Printed terms independently verified: 3 word summaries; 3 decoded trace entries; packed trace 2925 bits.
+
+exit_code=0

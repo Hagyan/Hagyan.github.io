@@ -1,0 +1,82 @@
+$ lean --version
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+
+$ lake build
+Build completed successfully.
+
+$ lake env lean -DwarningAsError=true Audit.lean
+def MAISO11.PolynomialLobBound : {F : Type} → MAISO11.ProofSystem F → (F → F → F) → (F → F) → (F → Nat) → Prop :=
+fun {F} S imp box size =>
+  ∃ C d, ∀ (A : F) (r : S.Proof (imp (box A) A)), ∃ p, S.length p ≤ C * (S.length r + size A + 1) ^ d
+structure MAISO11.QuantitativeLobTools {F : Type} (S : MAISO11.ProofSystem F) (imp : F → F → F) (box : F → F)
+  (size : F → Nat) : Type
+number of parameters: 5
+fields:
+  MAISO11.QuantitativeLobTools.mp : (A B : F) → S.Proof (imp A B) → S.Proof A → S.Proof B
+  MAISO11.QuantitativeLobTools.mpCost : Nat
+  MAISO11.QuantitativeLobTools.mp_bound : ∀ (A B : F) (p : S.Proof (imp A B)) (q : S.Proof A),
+      S.length (self.mp A B p q) ≤ S.length p + S.length q + self.mpCost * (size A + size B + 1)
+  MAISO11.QuantitativeLobTools.notice : (A : F) → S.Proof (imp (box A) A) → S.Proof (box (imp (box A) A))
+  MAISO11.QuantitativeLobTools.noticeCoeff : Nat
+  MAISO11.QuantitativeLobTools.noticeDegree : Nat
+  MAISO11.QuantitativeLobTools.notice_bound : ∀ (A : F) (r : S.Proof (imp (box A) A)),
+      S.length (self.notice A r) ≤ self.noticeCoeff * (S.length r + size A + 1) ^ self.noticeDegree
+  MAISO11.QuantitativeLobTools.lob : (A : F) → S.Proof (imp (box (imp (box A) A)) (box A))
+  MAISO11.QuantitativeLobTools.lobCoeff : Nat
+  MAISO11.QuantitativeLobTools.lobDegree : Nat
+  MAISO11.QuantitativeLobTools.lob_bound : ∀ (A : F),
+      S.length (self.lob A) ≤ self.lobCoeff * (size A + 1) ^ self.lobDegree
+  MAISO11.QuantitativeLobTools.boxCoeff : Nat
+  MAISO11.QuantitativeLobTools.box_bound : ∀ (A : F), size (box A) ≤ self.boxCoeff * (size A + 1)
+  MAISO11.QuantitativeLobTools.reflectionCoeff : Nat
+  MAISO11.QuantitativeLobTools.reflection_bound : ∀ (A : F), size (imp (box A) A) ≤ self.reflectionCoeff * (size A + 1)
+constructor:
+  MAISO11.QuantitativeLobTools.mk {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+    {size : F → Nat} (mp : (A B : F) → S.Proof (imp A B) → S.Proof A → S.Proof B) (mpCost : Nat)
+    (mp_bound :
+      ∀ (A B : F) (p : S.Proof (imp A B)) (q : S.Proof A),
+        S.length (mp A B p q) ≤ S.length p + S.length q + mpCost * (size A + size B + 1))
+    (notice : (A : F) → S.Proof (imp (box A) A) → S.Proof (box (imp (box A) A))) (noticeCoeff noticeDegree : Nat)
+    (notice_bound :
+      ∀ (A : F) (r : S.Proof (imp (box A) A)),
+        S.length (notice A r) ≤ noticeCoeff * (S.length r + size A + 1) ^ noticeDegree)
+    (lob : (A : F) → S.Proof (imp (box (imp (box A) A)) (box A))) (lobCoeff lobDegree : Nat)
+    (lob_bound : ∀ (A : F), S.length (lob A) ≤ lobCoeff * (size A + 1) ^ lobDegree) (boxCoeff : Nat)
+    (box_bound : ∀ (A : F), size (box A) ≤ boxCoeff * (size A + 1)) (reflectionCoeff : Nat)
+    (reflection_bound : ∀ (A : F), size (imp (box A) A) ≤ reflectionCoeff * (size A + 1)) :
+    MAISO11.QuantitativeLobTools S imp box size
+MAISO11.first_pass_excludes_polynomial_overhead {F G : Type} {B : MAISO11.ProofSystem F} {S : MAISO11.ProofSystem G}
+  (H : MAISO11.SeparationHypotheses B S) : ¬MAISO11.PolynomialLobBound S H.logic.imp H.logic.box H.sentenceSize
+MAISO11.internal_lob_axiom {F : Type} {S : MAISO11.ProofSystem F} (L : MAISO11.LobConditions S)
+  (precompose : ∀ (A B C : F), MAISO11.Provable S (L.imp A B) → MAISO11.Provable S (L.imp (L.imp B C) (L.imp A C)))
+  (A : F) : MAISO11.Provable S (L.imp (L.box (L.imp (L.box A) A)) (L.box A))
+MAISO11.QuantitativeLobTools.convert {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (A : F) (r : S.Proof (imp (box A) A)) : S.Proof A
+MAISO11.QuantitativeLobTools.exact_cost {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (A : F) (r : S.Proof (imp (box A) A)) :
+  S.length (T.convert A r) ≤
+    S.length r + S.length (T.lob A) + S.length (T.notice A r) +
+        T.mpCost * (size (box (imp (box A) A)) + size (box A) + 1) +
+      T.mpCost * (size (box A) + size A + 1)
+MAISO11.QuantitativeLobTools.budget {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (A : F) (r : S.Proof (imp (box A) A)) :
+  S.length (T.convert A r) ≤
+    S.length r + T.noticeCoeff * (S.length r + size A + 1) ^ T.noticeDegree + T.lobCoeff * (size A + 1) ^ T.lobDegree +
+      T.assemblyCoeff * (size A + 1)
+MAISO11.QuantitativeLobTools.uniform_budget {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (k n : Nat) (A : F) (r : S.Proof (imp (box A) A))
+  (hr : S.length r ≤ k) (hA : size A ≤ n) : ∃ p, S.length p ≤ T.coefficient * (k + n + 1) ^ T.degree
+MAISO11.QuantitativeLobTools.linear_premise_bound {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (hdegree : T.noticeDegree ≤ 1) (A : F)
+  (r : S.Proof (imp (box A) A)) :
+  S.length (T.convert A r) ≤
+    (T.noticeCoeff + 1) * S.length r + (T.noticeCoeff + T.lobCoeff + T.assemblyCoeff) * (size A + 1) ^ max T.lobDegree 1
+MAISO11.first_pass_and_polynomial_tools_incompatible {F G : Type} {B : MAISO11.ProofSystem F}
+  {S : MAISO11.ProofSystem G} (H : MAISO11.SeparationHypotheses B S)
+  (T : MAISO11.QuantitativeLobTools S H.logic.imp H.logic.box H.sentenceSize) : False
+'MAISO11.first_pass_excludes_polynomial_overhead' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.internal_lob_axiom' does not depend on any axioms
+'MAISO11.QuantitativeLobTools.uniform_budget' depends on axioms: [propext, Quot.sound]
+'MAISO11.QuantitativeLobTools.linear_premise_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.first_pass_and_polynomial_tools_incompatible' depends on axioms: [propext, Classical.choice, Quot.sound]
+

@@ -1,0 +1,12 @@
+name = "MAISO11ObstructionPass"
+version = "0.1.0"
+defaultTargets = ["ObstructionBounds", "FiniteDiagonalLogic", "SuffixAssembly"]
+
+[[lean_lib]]
+name = "ObstructionBounds"
+
+[[lean_lib]]
+name = "FiniteDiagonalLogic"
+
+[[lean_lib]]
+name = "SuffixAssembly"

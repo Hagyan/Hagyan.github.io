@@ -1,0 +1,9 @@
+PASS: 61-definition complete proof file decoded compactly
+'MAISO11.Wire.oldTerm_sound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.oldDefinition_complete' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.oldPrelude_complete' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.sharedPrelude_iff_old' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.decodeWholeShared_iff_old' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.checkWholeSharedReference_eq_old' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.checkWholeSharedReference_sound' depends on axioms: [propext, Quot.sound]
+'decodeActualDoublingFile' depends on axioms: [propext, Quot.sound]

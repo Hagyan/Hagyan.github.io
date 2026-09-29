@@ -1,0 +1,23 @@
+COMMAND: lake build quotationdemo pabincheck
+
+✔ [10/31] Built Examples:c.o
+✔ [14/31] Built PairingGraph:c.o
+✔ [15/31] Built ArithmeticTrace:c.o
+✔ [16/31] Built QuotationWire:c.o
+✔ [18/31] Built CompactProof:c.o
+✔ [19/31] Built Demo
+✔ [20/31] Built TracePacking:c.o
+✔ [21/31] Built PAFormula:c.o
+✔ [22/31] Built LocalCertificates:c.o
+✔ [23/31] Built CheckFile
+✔ [24/31] Built Demo:c.o
+✔ [25/31] Built StringQuotation:c.o
+✔ [26/31] Built CompactWire:c.o
+✔ [27/31] Built CheckFile:c.o
+✔ [28/31] Built CompactChecker:c.o
+✔ [29/31] Built quotationdemo
+✔ [30/31] Built CompactParser:c.o
+✔ [31/31] Built pabincheck
+Build completed successfully.
+
+EXIT_CODE: 0

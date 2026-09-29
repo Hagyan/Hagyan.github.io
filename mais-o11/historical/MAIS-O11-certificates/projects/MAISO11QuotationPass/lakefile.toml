@@ -1,0 +1,25 @@
+name = "MAISO11QuotationPass"
+version = "0.1.0"
+defaultTargets = ["StringQuotation", "QuotationWire", "LocalCertificates", "Examples", "ArithmeticTrace", "TracePacking"]
+
+[[lean_lib]]
+name = "StringQuotation"
+
+[[lean_lib]]
+name = "QuotationWire"
+
+[[lean_lib]]
+name = "LocalCertificates"
+
+[[lean_lib]]
+name = "Examples"
+
+[[lean_lib]]
+name = "ArithmeticTrace"
+
+[[lean_lib]]
+name = "TracePacking"
+
+[[lean_exe]]
+name = "quotationdemo"
+root = "Demo"

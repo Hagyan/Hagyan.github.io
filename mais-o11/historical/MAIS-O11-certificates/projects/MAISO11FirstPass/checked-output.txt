@@ -1,0 +1,110 @@
+$ lake env lean --version
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+
+$ lake build
+✔ [2/3] Built FirstPass
+Build completed successfully.
+
+$ lake env lean -DwarningAsError=true Audit.lean
+structure MAISO11.FiniteDiagonal {F : Type} (B : MAISO11.ProofSystem F) : Type
+number of parameters: 2
+fields:
+  MAISO11.FiniteDiagonal.sentence : Nat → F
+  MAISO11.FiniteDiagonal.guard : Nat → F
+  MAISO11.FiniteDiagonal.neg : F → F
+  MAISO11.FiniteDiagonal.consistent : ∀ (A : F), B.Proof A → B.Proof (self.neg A) → False
+  MAISO11.FiniteDiagonal.toGuard : (n : Nat) → B.Proof (self.sentence n) → B.Proof (self.guard n)
+  MAISO11.FiniteDiagonal.refuteShort : (n : Nat) →
+      (p : B.Proof (self.sentence n)) → B.length p ≤ n → B.Proof (self.neg (self.guard n))
+constructor:
+  MAISO11.FiniteDiagonal.mk {F : Type} {B : MAISO11.ProofSystem F} (sentence guard : Nat → F) (neg : F → F)
+    (consistent : ∀ (A : F), B.Proof A → B.Proof (neg A) → False)
+    (toGuard : (n : Nat) → B.Proof (sentence n) → B.Proof (guard n))
+    (refuteShort : (n : Nat) → (p : B.Proof (sentence n)) → B.length p ≤ n → B.Proof (neg (guard n))) :
+    MAISO11.FiniteDiagonal B
+structure MAISO11.LobConditions {F : Type} (S : MAISO11.ProofSystem F) : Type
+number of parameters: 2
+fields:
+  MAISO11.LobConditions.imp : F → F → F
+  MAISO11.LobConditions.box : F → F
+  MAISO11.LobConditions.mp : ∀ (A B : F),
+      MAISO11.Provable S (self.imp A B) → MAISO11.Provable S A → MAISO11.Provable S B
+  MAISO11.LobConditions.chain : ∀ (A B C : F),
+      MAISO11.Provable S (self.imp A B) → MAISO11.Provable S (self.imp B C) → MAISO11.Provable S (self.imp A C)
+  MAISO11.LobConditions.underMP : ∀ (A B C : F),
+      MAISO11.Provable S (self.imp A (self.imp B C)) →
+        MAISO11.Provable S (self.imp A B) → MAISO11.Provable S (self.imp A C)
+  MAISO11.LobConditions.necessitate : ∀ (A : F), MAISO11.Provable S A → MAISO11.Provable S (self.box A)
+  MAISO11.LobConditions.boxMP : ∀ (A B : F),
+      MAISO11.Provable S (self.imp (self.box (self.imp A B)) (self.imp (self.box A) (self.box B)))
+  MAISO11.LobConditions.boxBox : ∀ (A : F), MAISO11.Provable S (self.imp (self.box A) (self.box (self.box A)))
+  MAISO11.LobConditions.fixedPoint : ∀ (A : F),
+      ∃ G,
+        MAISO11.Provable S (self.imp G (self.imp (self.box G) A)) ∧
+          MAISO11.Provable S (self.imp (self.imp (self.box G) A) G)
+constructor:
+  MAISO11.LobConditions.mk {F : Type} {S : MAISO11.ProofSystem F} (imp : F → F → F) (box : F → F)
+    (mp : ∀ (A B : F), MAISO11.Provable S (imp A B) → MAISO11.Provable S A → MAISO11.Provable S B)
+    (chain : ∀ (A B C : F), MAISO11.Provable S (imp A B) → MAISO11.Provable S (imp B C) → MAISO11.Provable S (imp A C))
+    (underMP :
+      ∀ (A B C : F), MAISO11.Provable S (imp A (imp B C)) → MAISO11.Provable S (imp A B) → MAISO11.Provable S (imp A C))
+    (necessitate : ∀ (A : F), MAISO11.Provable S A → MAISO11.Provable S (box A))
+    (boxMP : ∀ (A B : F), MAISO11.Provable S (imp (box (imp A B)) (imp (box A) (box B))))
+    (boxBox : ∀ (A : F), MAISO11.Provable S (imp (box A) (box (box A))))
+    (fixedPoint :
+      ∀ (A : F), ∃ G, MAISO11.Provable S (imp G (imp (box G) A)) ∧ MAISO11.Provable S (imp (imp (box G) A) G)) :
+    MAISO11.LobConditions S
+structure MAISO11.SeparationHypotheses {F G : Type} (B : MAISO11.ProofSystem F) (S : MAISO11.ProofSystem G) : Type
+number of parameters: 4
+fields:
+  MAISO11.SeparationHypotheses.diagonal : MAISO11.FiniteDiagonal B
+  MAISO11.SeparationHypotheses.logic : MAISO11.LobConditions S
+  MAISO11.SeparationHypotheses.target : Nat → G
+  MAISO11.SeparationHypotheses.sentenceSize : G → Nat
+  MAISO11.SeparationHypotheses.C : Nat
+  MAISO11.SeparationHypotheses.C_pos : 0 < self.C
+  MAISO11.SeparationHypotheses.a : Nat
+  MAISO11.SeparationHypotheses.b : Nat
+  MAISO11.SeparationHypotheses.translate : (n : Nat) → S.Proof (self.target n) → B.Proof (self.diagonal.sentence n)
+  MAISO11.SeparationHypotheses.translationBound : ∀ (n : Nat) (p : S.Proof (self.target n)),
+      B.length (self.translate n p) ≤ self.C * (S.length p + 1)
+  MAISO11.SeparationHypotheses.reflectionProof : (n : Nat) →
+      S.Proof (self.logic.imp (self.logic.box (self.target n)) (self.target n))
+  MAISO11.SeparationHypotheses.reflectionBound : ∀ (n : Nat),
+      S.length (self.reflectionProof n) ≤ self.a * MAISO11.logSize n
+  MAISO11.SeparationHypotheses.sizeBound : ∀ (n : Nat),
+      self.sentenceSize (self.target n) + 1 ≤ self.b * MAISO11.logSize n
+  MAISO11.SeparationHypotheses.reflectionDistinct : ∀ (i j : Nat),
+      self.logic.imp (self.logic.box (self.target i)) (self.target i) =
+          self.logic.imp (self.logic.box (self.target j)) (self.target j) →
+        i = j
+  MAISO11.SeparationHypotheses.shortConclusions : Nat → List G
+  MAISO11.SeparationHypotheses.shortConclusionsComplete : ∀ (M : Nat) (A : G) (p : S.Proof A),
+      S.length p ≤ M → A ∈ self.shortConclusions M
+constructor:
+  MAISO11.SeparationHypotheses.mk {F G : Type} {B : MAISO11.ProofSystem F} {S : MAISO11.ProofSystem G}
+    (diagonal : MAISO11.FiniteDiagonal B) (logic : MAISO11.LobConditions S) (target : Nat → G) (sentenceSize : G → Nat)
+    (C : Nat) (C_pos : 0 < C) (a b : Nat) (translate : (n : Nat) → S.Proof (target n) → B.Proof (diagonal.sentence n))
+    (translationBound : ∀ (n : Nat) (p : S.Proof (target n)), B.length (translate n p) ≤ C * (S.length p + 1))
+    (reflectionProof : (n : Nat) → S.Proof (logic.imp (logic.box (target n)) (target n)))
+    (reflectionBound : ∀ (n : Nat), S.length (reflectionProof n) ≤ a * MAISO11.logSize n)
+    (sizeBound : ∀ (n : Nat), sentenceSize (target n) + 1 ≤ b * MAISO11.logSize n)
+    (reflectionDistinct :
+      ∀ (i j : Nat), logic.imp (logic.box (target i)) (target i) = logic.imp (logic.box (target j)) (target j) → i = j)
+    (shortConclusions : Nat → List G)
+    (shortConclusionsComplete : ∀ (M : Nat) (A : G) (p : S.Proof A), S.length p ≤ M → A ∈ shortConclusions M) :
+    MAISO11.SeparationHypotheses B S
+MAISO11.SeparationHypotheses.conditional_main {F G : Type} {B : MAISO11.ProofSystem F} {S : MAISO11.ProofSystem G}
+  (H : MAISO11.SeparationHypotheses B S) (C1 : Nat) :
+  (∀ (i j : Nat), i < j → H.witnessIndex C1 i < H.witnessIndex C1 j) ∧
+    (∀ (i : Nat),
+        ∃ p r,
+          MAISO11.IsShortest S p ∧
+            MAISO11.IsShortest S r ∧
+              2 * S.length r + C1 * (H.sentenceSize (H.target (H.witnessIndex C1 i)) + 1) < S.length p) ∧
+      ∀ (M : Nat), ∃ I, ∀ (i : Nat), I ≤ i → ∀ (r : S.Proof (H.reflection (H.witnessIndex C1 i))), M < S.length r
+'MAISO11.finite_diagonal_lower_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.lob_rule' does not depend on any axioms
+'MAISO11.SeparationHypotheses.direct_lower_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.SeparationHypotheses.witness_large_enough' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.SeparationHypotheses.conditional_main' depends on axioms: [propext, Classical.choice, Quot.sound]

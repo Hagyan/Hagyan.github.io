@@ -1,0 +1,5 @@
+Wrote SummaryFiniteCheck.lean (158433 bytes)
+Lean input: 204 grammar definitions, 407 local Join witnesses
+Expected root summary: (2535301200456458802993406410753, 0, 0)
+The exported file independently recomputes the table and validates all Join witnesses.
+It does not encode the Python proof graph, Enderton PA-bin checker, or fixed Bew predicate.

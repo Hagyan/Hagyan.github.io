@@ -1,0 +1,9 @@
+name = "MAISO11EnvelopePass"
+version = "0.1.0"
+defaultTargets = ["Envelope", "FiniteFiles"]
+
+[[lean_lib]]
+name = "Envelope"
+
+[[lean_lib]]
+name = "FiniteFiles"

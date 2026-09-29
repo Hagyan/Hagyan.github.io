@@ -1,0 +1,6 @@
+name = "mais_o11_first_pass"
+version = "0.1.0"
+defaultTargets = ["FirstPass"]
+
+[[lean_lib]]
+name = "FirstPass"

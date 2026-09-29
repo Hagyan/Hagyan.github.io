@@ -1,0 +1,120 @@
+COMMAND: lake build StringQuotation QuotationWire LocalCertificates Examples ArithmeticTrace TracePacking PAFormula PairingGraph CompactWire CompactProof CompactParser CompactChecker CompressionBarrier DagEquality CompactEquality PadBounds CompositionBarrier SharedPrelude SharedPreludeDemo SharedConverse SharedConverseDemo GraphCompiler SharedOracle SharedOracleDemo GraphFileChecker OpenGraph GraphSubterms GraphDepthBarrier InstantiationGraph GraphFileCheckerInst FragmentBalance SpecTransfer GrammarLengthBound FragmentFamily FragmentPrefix FragmentRange CodedScan ChosenSystemExpansion ChosenSystemSerialization ChosenSystemInterleaving
+LEAN_SYSROOT: /workspace/scratch/a20bad5ffd43/tmp/lean-toolchain/lean-4.19.0-linux
+
+ℹ [32/81] Replayed CompositionBarrier
+info: ././././CompositionBarrier.lean:38:0: 'MAISO11.PaddingLoophole.quadratic_fee_excludes_constant_mp' depends on axioms: [propext, Quot.sound]
+ℹ [36/81] Replayed SharedPreludeDemo
+info: ././././SharedPreludeDemo.lean:46:0: PASS: actual 61-definition prelude parses without expanding
+info: ././././SharedPreludeDemo.lean:50:0: 'MAISO11.Wire.parseSharedPrelude_refines_old' depends on axioms: [propext, Quot.sound]
+info: ././././SharedPreludeDemo.lean:51:0: 'MAISO11.Wire.parseSharedPrelude_sound_wire' depends on axioms: [propext, Quot.sound]
+info: ././././SharedPreludeDemo.lean:52:0: 'MAISO11.Wire.parseSharedPrelude_mass_le_input' depends on axioms: [propext, Quot.sound]
+info: ././././SharedPreludeDemo.lean:53:0: 'MAISO11.Wire.two_definition_readers_agree_on_wire' depends on axioms: [propext, Quot.sound]
+info: ././././SharedPreludeDemo.lean:54:0: 'parseActualDoublingPrelude' depends on axioms: [propext, Quot.sound]
+info: ././././SharedPreludeDemo.lean:55:0: 'doublingDefs_expand' depends on axioms: [propext]
+info: ././././SharedPreludeDemo.lean:56:0: 'doublingDefs_characters' depends on axioms: [propext, Quot.sound]
+ℹ [40/81] Replayed SharedConverseDemo
+info: ././././SharedConverseDemo.lean:23:0: PASS: 61-definition complete proof file decoded compactly
+info: ././././SharedConverseDemo.lean:27:0: 'MAISO11.Wire.oldTerm_sound' depends on axioms: [propext, Quot.sound]
+info: ././././SharedConverseDemo.lean:28:0: 'MAISO11.Wire.oldDefinition_complete' depends on axioms: [propext, Quot.sound]
+info: ././././SharedConverseDemo.lean:29:0: 'MAISO11.Wire.oldPrelude_complete' depends on axioms: [propext, Quot.sound]
+info: ././././SharedConverseDemo.lean:30:0: 'MAISO11.Wire.sharedPrelude_iff_old' depends on axioms: [propext, Quot.sound]
+info: ././././SharedConverseDemo.lean:31:0: 'MAISO11.Wire.decodeWholeShared_iff_old' depends on axioms: [propext, Quot.sound]
+info: ././././SharedConverseDemo.lean:32:0: 'MAISO11.Wire.checkWholeSharedReference_eq_old' depends on axioms: [propext, Quot.sound]
+info: ././././SharedConverseDemo.lean:33:0: 'MAISO11.Wire.checkWholeSharedReference_sound' depends on axioms: [propext, Quot.sound]
+info: ././././SharedConverseDemo.lean:34:0: 'decodeActualDoublingFile' depends on axioms: [propext, Quot.sound]
+ℹ [48/81] Replayed SharedOracleDemo
+info: ././././SharedOracleDemo.lean:60:0: PASS: compiled root equals its written addition definition
+info: ././././SharedOracleDemo.lean:62:0: PASS: compiled comparison works beneath a quantifier binder
+info: ././././SharedOracleDemo.lean:64:0: PASS: graph shortcut accepts a propositional axiom with huge abbreviations
+info: ././././SharedOracleDemo.lean:66:0: PASS: compiled record checker accepts the huge-abbreviation axiom
+info: ././././SharedOracleDemo.lean:68:0: PASS: compiled record checker accepts the huge-abbreviation conjunction axiom
+info: ././././SharedOracleDemo.lean:70:0: PASS: graph shortcut accepts reflexivity instantiated with equivalent abbreviations
+info: ././././SharedOracleDemo.lean:72:0: PASS: compiled graph retains one node per non-reference constructor
+info: ././././SharedOracleDemo.lean:74:0: PASS: compact graph checker accepts the complete 61-definition file
+info: ././././SharedOracleDemo.lean:209:0: 'MAISO11.Shared.sharedClosedEqual_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:210:0: 'MAISO11.Shared.sharedOpenEqual_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:211:0: 'MAISO11.Shared.compiledTermEqual_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:212:0: 'MAISO11.Shared.compiledFormulaEqual_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:213:0: 'MAISO11.Shared.checkRecordsCompiledTerms_iff' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:214:0: 'MAISO11.Shared.checkWholeSharedGraph_eq_old_accept' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:215:0: 'MAISO11.Shared.checkWholeSharedGraph_sound' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:216:0: 'rootVsItsDefinition_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:217:0: 'quantifiedRootVsItsDefinition_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:218:0: 'bigContrapAccepted_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:219:0: 'MAISO11.Shared.compiledAxiomCheck_eq_reference' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:220:0: 'MAISO11.Shared.compiledAxiomShortcut_sound' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:221:0: 'bigAxiomRecordAccepted_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:222:0: 'bigConjRecordAccepted_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:223:0: 'MAISO11.Shared.compiledReflInstShortcut_sound' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:224:0: 'bigReflInstRecordAccepted_correct' depends on axioms: [propext, Quot.sound]
+info: ././././SharedOracleDemo.lean:225:0: 'hiddenWitness_is_instance' depends on axioms: [propext]
+info: ././././SharedOracleDemo.lean:226:0: 'hiddenCandidate_is_axiom' depends on axioms: [propext]
+info: ././././SharedOracleDemo.lean:227:0: 'hiddenWitness_not_in_obvious_candidates' depends on axioms: [propext]
+ℹ [52/81] Replayed GraphSubterms
+info: ././././GraphSubterms.lean:84:0: 'MAISO11.Shared.Graph.subterm_has_node' depends on axioms: [propext]
+info: ././././GraphSubterms.lean:85:0: 'MAISO11.Shared.compiledDefs_subterm_has_node' depends on axioms: [propext, Quot.sound]
+ℹ [54/81] Replayed GraphDepthBarrier
+info: ././././GraphDepthBarrier.lean:62:0: 'MAISO11.Shared.Graph.depth_le_size' depends on axioms: [propext, Quot.sound]
+info: ././././GraphDepthBarrier.lean:63:0: 'MAISO11.Shared.unarySpine_graph_lower_bound' depends on axioms: [propext, Quot.sound]
+ℹ [56/81] Replayed InstantiationGraph
+info: ././././InstantiationGraph.lean:588:0: 'MAISO11.Wire.CFormula.replaceOuter_instantiate' depends on axioms: [propext, Quot.sound]
+info: ././././InstantiationGraph.lean:589:0: 'MAISO11.Shared.compiledInstCandidates_iff' depends on axioms: [propext, Quot.sound]
+info: ././././InstantiationGraph.lean:590:0: 'MAISO11.Shared.compiledInstShortcut_eq_instCheck' depends on axioms: [propext, Quot.sound]
+info: ././././InstantiationGraph.lean:591:0: 'MAISO11.Shared.compiledAxiomCheckInst_eq_reference' depends on axioms: [propext, Quot.sound]
+info: ././././InstantiationGraph.lean:592:0: 'MAISO11.Shared.hiddenInstShortcutAccepted' depends on axioms: [propext, Quot.sound]
+ℹ [58/81] Replayed GraphFileCheckerInst
+info: ././././GraphFileCheckerInst.lean:82:0: 'MAISO11.Shared.checkRecordsWithInst_iff' depends on axioms: [propext, Quot.sound]
+info: ././././GraphFileCheckerInst.lean:83:0: 'MAISO11.Shared.checkWholeGraphWithInst_eq_old_accept' depends on axioms: [propext, Quot.sound]
+ℹ [60/81] Replayed FragmentBalance
+info: ././././FragmentBalance.lean:283:0: 'MAISO11.FragmentBalance.Summary.join_assoc' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentBalance.lean:284:0: 'MAISO11.FragmentBalance.summarize_append' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentBalance.lean:285:0: 'MAISO11.FragmentBalance.safeFrom_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ././././FragmentBalance.lean:286:0: 'MAISO11.FragmentBalance.FragmentGraph.compute_correct' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentBalance.lean:287:0: 'MAISO11.FragmentBalance.FragmentGraph.balanced_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ././././FragmentBalance.lean:288:0: 'MAISO11.FragmentBalance.grammarSummary_correct' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentBalance.lean:289:0: 'MAISO11.FragmentBalance.grammarBalanced_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ././././FragmentBalance.lean:290:0: 'MAISO11.FragmentBalance.cachedGrammarSummary_correct' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentBalance.lean:291:0: 'MAISO11.FragmentBalance.cachedGrammarBalanced_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+ℹ [62/81] Replayed SpecTransfer
+info: ././././SpecTransfer.lean:87:0: 'MAISO11.SpecTransfer.numericGap' depends on axioms: [propext]
+info: ././././SpecTransfer.lean:88:0: 'MAISO11.SpecTransfer.unboundedOverheadGivesWitness' depends on axioms: [propext, Quot.sound]
+info: ././././SpecTransfer.lean:89:0: 'MAISO11.SpecTransfer.reflectionLengthsTendToInfinity' depends on axioms: [propext, Quot.sound]
+ℹ [66/81] Replayed ChosenSystemExpansion
+info: ././././ChosenSystemExpansion.lean:305:0: 'MAISO11.ChosenSystem.expandedRoot_length_le_two_pow_two_mul' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemExpansion.lean:306:0: 'MAISO11.ChosenSystem.binaryIdentifierCode_injective' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemExpansion.lean:307:0: 'MAISO11.ChosenSystem.SerializedProofFile.readIdentifier' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemExpansion.lean:308:0: 'MAISO11.ChosenSystem.serializedFile_expandedRoot_length_le_two_pow_two_mul' depends on axioms: [propext, Quot.sound]
+ℹ [68/81] Replayed ChosenSystemSerialization
+info: ././././ChosenSystemSerialization.lean:355:0: 'MAISO11.ChosenSystem.readIdentifierSymbols_encode' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemSerialization.lean:356:0: 'MAISO11.ChosenSystem.parseTaggedAtom_serializeAtom' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemSerialization.lean:357:0: 'MAISO11.ChosenSystem.parseTaggedFragmentUntilFuel_serialize' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemSerialization.lean:358:0: 'MAISO11.ChosenSystem.parseSerializedDefinition_encode' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemSerialization.lean:359:0: 'MAISO11.ChosenSystem.parseSerializedGrammar_encode' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemSerialization.lean:360:0: 'MAISO11.ChosenSystem.SerializedProofFile.parse_wire' depends on axioms: [propext, Quot.sound]
+ℹ [70/81] Replayed ChosenSystemInterleaving
+info: ././././ChosenSystemInterleaving.lean:201:0: 'MAISO11.ChosenSystem.interleaved_compile_correct' depends on axioms: [propext]
+info: ././././ChosenSystemInterleaving.lean:202:0: 'MAISO11.ChosenSystem.interleaved_expansion_length_le_two_pow_two_mul' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemInterleaving.lean:203:0: 'MAISO11.ChosenSystem.serializeInterleavedProgram_length_ge_cost' depends on axioms: [propext, Quot.sound]
+info: ././././ChosenSystemInterleaving.lean:204:0: 'MAISO11.ChosenSystem.interleaved_expansion_length_le_serialized_budget' depends on axioms: [propext, Quot.sound]
+✔ [72/81] Built Examples
+✔ [74/81] Built CodedScan
+ℹ [76/81] Built FragmentFamily
+info: ././././FragmentFamily.lean:140:0: 'MAISO11.FragmentFamily.family_prefix' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentFamily.lean:141:0: 'MAISO11.FragmentFamily.family_suffix' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentFamily.lean:142:0: 'MAISO11.FragmentFamily.finalWord_eq' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentFamily.lean:143:0: 'MAISO11.FragmentFamily.family_mass' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentFamily.lean:144:0: 'MAISO11.FragmentFamily.finalWord_length' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentFamily.lean:145:0: 'MAISO11.FragmentFamily.finalWord_renderSpine' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentFamily.lean:146:0: 'MAISO11.FragmentFamily.fragment_dag_gap' depends on axioms: [propext, Quot.sound]
+ℹ [78/81] Built FragmentPrefix
+info: ././././FragmentPrefix.lean:309:0: 'MAISO11.FragmentPrefix.summaryTable_correct' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentPrefix.lean:310:0: 'MAISO11.FragmentPrefix.prefixSummary_correct' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentPrefix.lean:311:0: 'MAISO11.FragmentPrefix.query_visits' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentPrefix.lean:312:0: "PASS: prefix queries over 2^61 expanded characters, without expansion"
+info: ././././FragmentPrefix.lean:313:0: "PASS: empty referenced fragments and clipped prefix lengths"
+ℹ [80/81] Built FragmentRange
+info: ././././FragmentRange.lean:142:0: 'MAISO11.FragmentRange.rangeSummary_correct' depends on axioms: [propext, Quot.sound]
+info: ././././FragmentRange.lean:143:0: "PASS: clipped interval queries over 2^61 characters without expansion"
+Build completed successfully.
+
+EXIT_CODE: 0

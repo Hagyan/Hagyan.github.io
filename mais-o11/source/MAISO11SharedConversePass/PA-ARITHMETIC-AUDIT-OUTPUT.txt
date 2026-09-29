@@ -1,0 +1,18 @@
+Fixed PA-admissible templates checked: zero_left, suc_left, assoc, comm, shuffle
+Native term DAG nodes: 61 proof DAG nodes: 70
+Tampered endpoint rejected
+Undischarged false hypothesis rejected
+Open substitution rejected
+Forward proof reference rejected
+Incorrect induction step rejected
+Escaping induction eigenvariable rejected
+1024 addition cases and 100 successor cases checked
+256-bit carry proof checked: 4937 proof nodes; 1858 term nodes
+Negative zero reference exploit rejected
+Undeclared expected axiom term rejected
+Boolean proof endpoint rejected
+PASS: 84 closed existential join proofs checked; forged conclusion rejected.
+Arithmetic proof records: 880; term nodes: 539; logical introduction records: 1260.
+Object calculus uses PA-admissible rules; this is not an Enderton wire or Lean certificate.
+PASS: {'definitions': 204, 'joins': 407, 'terms': 494, 'arithmetic_proofs': 912, 'logic_steps': 6105, 'final_summary': (2535301200456458802993406410753, 0, 0)}
+PA-admissible object calculus only: not Lean, Enderton wire, or fixed-Bew verification.

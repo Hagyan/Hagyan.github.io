@@ -1,0 +1,782 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[left=1in,right=1in,top=0.85in,bottom=0.85in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black,citecolor=blue!50!black]{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\setlist{itemsep=3pt,topsep=5pt}
+\setlength{\emergencystretch}{2em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\PA}{\mathsf{PA}}
+\newcommand{\PAbin}{\mathsf{PA}_{\mathrm{bin}}}
+\newcommand{\Prov}{\operatorname{Prov}}
+\newcommand{\Prf}{\operatorname{Prf}}
+\newcommand{\Len}{\operatorname{Len}}
+\newcommand{\Chk}{\operatorname{Check}}
+\newcommand{\num}[1]{\overline{#1}}
+\newcommand{\gn}[1]{\ulcorner #1\urcorner}
+\newcommand{\bits}{\operatorname{bits}}
+\newcommand{\R}{\mathcal R}
+\title{A slow-verifier separation for L\"ob's rule\\
+\large An affirmative construction for the chosen-system clause of MAIS-O11(1)}
+\author{Research note for Andrew Hagy\\\small AI-assisted mathematical draft; no Lean certificate}
+\date{22 September 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Assuming the consistency of Peano arithmetic, we construct a consistent,
+recursively presented extension $S$ of PA, with binary numerals and nested,
+priced abbreviations, and sentences $p_n$ such that
+\[
+ \ell_S(\Box_Sp_n\to p_n)=O(\log(n+2)),\qquad
+ \ell_S(p_n)> n/C-1.
+\]
+Consequently, after taking a tail, this family satisfies the fixed-factor
+inequality in MAIS-O11(1), including its additive toll, with $\delta=1$.
+The main construction uses a countable, effectively coded set of new nullary
+predicates and a primitive recursive verifier that performs very long finite
+searches. An arithmetic-only variant is also given, with its failure of
+uniform instantiation explicitly proved.
+It addresses the stated permission to choose an efficient system, where
+``efficient'' has the three-clause meaning in MAIS-A1. It does not establish
+a speedup in the specified $\PAbin$, decide MAIS-O11(2), or give a
+polynomial-time implementation of the specified verifier.
+\end{abstract}
+
+\paragraph{Scope and verification status.}
+This is a mathematical construction, with its reductions and assumptions
+spelled out below. Neither a byte-level implementation of its arithmetization
+nor a Lean formalization has been produced. No claim of historical novelty or
+independent expert verification is made. The deliberately slow checker is an
+essential part of the example, rather than a performance detail that can be
+discarded. The source question and its fixed-system polynomial-overhead
+conjecture must be kept distinct.
+
+\section{The precise target and the allowed freedom}
+
+Write $\ell_T(A)$ for the least number of written characters in a $T$-proof
+of $A$. All abbreviation definitions and names count. The requested lower
+bound is a family $P_i$ with reflection lengths tending to infinity and
+\begin{equation}\label{eq:target}
+ \ell_S(P_i)\ge 2\ell_S(\Box_SP_i\to P_i)+C_1(|P_i|+1),
+\end{equation}
+where $C_1$ is a fixed constant for the cheap transformation from a proof of
+$P$ to a proof of $\Box_SP\to P$. This gives $\delta=1$ in the problem.
+
+MAIS-A1 calls a system efficient if it is a consistent recursively
+axiomatized extension of PA, has logarithmic-length numerals, and allows
+nested proof abbreviations. Its definition of a proof requires a primitive
+recursive checker. These requirements do not impose a polynomial running-time
+bound on the checker, nor do they require the language of an extension to
+have the same finite signature as PA. Both freedoms are used here.
+
+The proof files below use an ordinary Hilbert calculus. There is no L\"ob
+inference rule built into the calculus and no extra padding charged to
+conclusions. The additional computational work takes place when the verifier
+checks whether the file is admissible.
+
+\section{A fixed base calculus and its hard finite sentences}
+
+Fix a Hilbert presentation $B$ of PA with efficient binary numerals and
+nested abbreviations for complete terms and formulas. Choose a fixed finite
+basis of propositional axiom schemes, the usual quantifier and equality
+schemes, and PA induction, so checking an expanded proof takes polynomial
+time in its expanded length. One may implement
+binary constructors $b_0(t)=2t$ and $b_1(t)=2t+1$ as a fixed definitional
+extension of arithmetic. Assume $B$ is consistent.
+
+All tokens, including variable and abbreviation identifiers, are represented
+over a fixed finite character alphabet. Identifiers use binary indices.
+An abbreviation stands for a term or formula, not a fragment of a token;
+in particular it cannot assemble a new predicate name from pieces of names.
+Definitions can refer to previous definitions. A verifier may expand the
+definitions and check the resulting Hilbert proof. This is primitive recursive,
+and PA proves termination and the usual elementary syntactic invariants of
+this specified procedure. Abbreviations need not be expanded when counting
+the length of the input file.
+
+Let $\Prf_B(u,v)$ be a natural, PA-provably $\Delta_1$ representation of this
+checker, and let $\Len(u)$ count written characters. By the parameterized
+diagonal lemma there is a fixed arithmetic formula $D(x)$ such that, writing
+$D_n=D(\num n)$,
+\begin{equation}\label{eq:finite-diagonal}
+ B\vdash\forall x\bigl(D(x)\leftrightarrow H(x)\bigr),
+\end{equation}
+where
+\begin{equation}\label{eq:H}
+ H(n)\;:\Longleftrightarrow\;
+ \text{no $B$-proof of $D_n$ has written length at most $n$}.
+\end{equation}
+Inside arithmetic the conclusion code in \eqref{eq:H} is produced by the
+primitive recursive operation that substitutes the canonical numeral for $n$
+into the fixed formula $D$. Thus \eqref{eq:finite-diagonal} is a uniform
+arithmetical theorem, not an informal substitution of a free variable into a
+quotation. The predicate $H$ is decided by checking all proof files of length
+at most $n$; it has a PA-provably $\Delta_1$ representation. Also
+$|D_n|=O(\log(n+2))$.
+
+\begin{lemma}\label{lem:hard}
+For every standard $n$, $H(n)$ is true, $B\vdash D_n$, and
+\[
+ \ell_B(D_n)>n.
+\]
+\end{lemma}
+\begin{proof}
+Suppose $u$ were a $B$-proof of $D_n$ of length at most $n$. Its existence
+would give $B\vdash D_n$. Numeralwise verification of the particular finite
+proof $u$ would also give $B\vdash\neg H(\num n)$. But
+\eqref{eq:finite-diagonal} and the proof of $D_n$ give $B\vdash H(\num n)$.
+This contradicts consistency. Hence no such $u$ exists and $H(n)$ is true.
+The exhaustive finite check establishing $H(n)$ has a terminating computation;
+PA can verify that computation, however long it is. Thus
+$B\vdash H(\num n)$, and \eqref{eq:finite-diagonal} yields $B\vdash D_n$.
+\end{proof}
+
+This is the familiar finite G\"odel-sentence lower bound; see Pudl\'ak's
+discussion of the diagonal sentences in \cite[Section 3.1]{pudlak2017}.
+We have included its proof because it works for the chosen abbreviation
+calculus without importing a quantitative finite-consistency theorem from
+a different calculus. No bound on the time taken by the finite check is
+used to infer that its proof is short.
+
+\section{Constructing a verifier that refers to its own proof predicate}
+
+Expand the language by distinct nullary predicates
+\[
+ p_0,p_1,p_2,\ldots.
+\]
+These are separate predicate symbols, not instances of a unary predicate
+$p(x)$. Encode the name $p_n$ with a binary index, so $|p_n|=O(\log(n+2))$.
+The characters in the name are charged, and names cannot be formed by
+abbreviation expansion. Fix an injective primitive recursive formula coding
+with
+\begin{equation}\label{eq:atom-code}
+ \#p_n=2n+1.
+\end{equation}
+Assign even codes to all other formulas using an ordinary string coding.
+The numeral for a formula's code still has size $O(|A|+1)$. In particular,
+the canonical numeral for $\#p_n$ is $b_1(\num n)$.
+Proof-file codes can use the usual base-alphabet string encoding.
+
+\subsection{The parameterized checker}
+
+For a code $e$ of an arithmetic formula $\vartheta(u,v)$ with two designated
+free variables, define $\Chk(e,\pi,y)$ by the following terminating
+algorithm:
+\begin{enumerate}
+\item Parse $\pi$ as a Hilbert proof with the same abbreviation discipline as
+$B$, and require its expanded conclusion to have code $y$.
+\item Allow the ordinary logical and PA axioms in the expanded language,
+modus ponens, generalization, and abbreviation definitions. In addition,
+allow the axiom instances
+\begin{equation}\label{eq:param-reflection}
+ R_{e,n}:=\bigl(\exists u\,\vartheta(u,\num{2n+1})\bigr)\to p_n.
+\end{equation}
+The axiom formula must occur in the proof file, possibly through previously
+defined abbreviations. Recognizing it only inspects the text coded by $e$;
+it does not evaluate that formula.
+\item For every primitive predicate $p_j$ occurring in the file, including
+in abbreviation definitions, run the finite test $H(j)$ and require that it
+returns true. An invalid formula code $e$ or malformed file is rejected.
+\end{enumerate}
+
+The algorithm is primitive recursive. The last step performs bounded proof
+search in the already fixed base system $B$. There is no search for an
+unbounded proof and no recursive invocation of the new verifier.
+
+In $B$ one proves the syntactic invariant
+\begin{equation}\label{eq:guard}
+ B\vdash\forall e\,\forall\pi\,\forall n\,
+ \bigl(\Chk(e,\pi,2n+1)\to H(n)\bigr).
+\end{equation}
+Indeed the only formula with code $2n+1$ is $p_n$. A file whose expanded
+conclusion is $p_n$ must contain that literal predicate token in one of its
+records or definitions: expansion of complete terms and formulas does not
+manufacture new predicate tokens. Induction over the ordered abbreviation
+definitions proves this fact in PA. The verifier has therefore checked
+$H(n)$. This establishes \eqref{eq:guard} uniformly, without assuming that
+every $H(n)$ is true.
+
+\subsection{A fixed point for the checker description}
+
+Apply the parameterized diagonal lemma to the arithmetic relation
+$\Chk(e,\pi,y)$. Obtain an arithmetic formula $V(\pi,y)$, with code
+$v=\#V$, for which
+\begin{equation}\label{eq:verifier-fp}
+ B\vdash\forall\pi\,\forall y\,
+ \bigl(V(\pi,y)\leftrightarrow\Chk(\num v,\pi,y)\bigr).
+\end{equation}
+It can be chosen PA-provably $\Delta_1$: the diagonal construction uses
+primitive recursive, PA-provably total substitution operations, and $\Chk$
+is such a relation. Equivalently, substitute the graph of the unique output
+of the diagonal substitution operation into its $\Delta_1$ definition.
+
+Now define an $S$-proof to be a file accepted by the concrete checker
+$\Chk(v,-,-)$. Define its arithmetized proof predicate to be $V$ and put
+\[
+ \Box_S A:=\exists\pi\,V(\pi,\gn A).
+\]
+Equation \eqref{eq:verifier-fp} identifies this predicate with the actual
+checker inside PA. It is not merely an externally equivalent alternative
+provability predicate. The extra axioms \eqref{eq:param-reflection} are now
+exactly
+\begin{equation}\label{eq:Ri}
+ R_n=\Box_Sp_n\to p_n.
+\end{equation}
+This removes the apparent circularity in saying that the extra axioms
+mention provability in the very system being defined.
+
+\subsection{A finite runtime bound for the verifier}
+
+The verifier is deliberately slow, but not an unspecified recursive search.
+There is a fixed integer $c\ge1$ for which an implementation on proof files
+of length $m$ computes the conclusion and acceptance result in at most
+\[
+ T(m)=2^{\,2^{c(m+1)^2}}
+\]
+steps. Comparing the conclusion against a separately supplied code also
+charges the length of that code; alternatively reject an oversized supplied
+code after reading a prefix longer than the maximal possible conclusion.
+
+Here is a conservative bound sufficient for the claim. A file of length $r$
+has at most $r$ ordered definitions. Each expansion stage increases the
+current length by a factor at most $r+1$, so the expanded text has length at
+most $(r+1)^{r+1}\le 2^{(r+1)^2}$ for $r\ge1$. There are at most
+$|\Sigma_B|^{j+1}$ candidate proof files of length at most $j$. Their
+expansion and polynomial-time checking therefore decide $H(j)$ within
+$2^{c_2(j+1)^2}$ steps for a fixed $c_2$. In an $m$-character $S$-file,
+every tested index $j$ has $O(m+1)$ binary digits, and there are at most $m$
+distinct literal predicate names. Substitution into this bound, together with
+the ordinary syntax checks, is absorbed by $T(m)$ after increasing $c$.
+Malformed inputs can be rejected before the corresponding work is done.
+
+All these bounds concern fixed finite loops, expansion, and arithmetic on
+finite strings; PA proves termination with an elementary bound by the same
+inductions. This is a runtime bound for the chosen implementation, not a
+polynomial-time claim or an explicit length certificate for internalizing
+the computation as an arithmetic proof.
+
+Combining \eqref{eq:guard}, \eqref{eq:verifier-fp}, and
+\eqref{eq:finite-diagonal} gives a \emph{single fixed $B$-proof} of
+\begin{equation}\label{eq:uniform-image}
+ \forall n\,\Bigl(\bigl(\exists\pi\,V(\pi,b_1(n))\bigr)\to D(n)\Bigr).
+\end{equation}
+This uniform theorem is the main reason the lower-bound interpretation below
+can be efficient even though the verifier is not.
+
+\section{Consistency, arithmetic strength, and L\"ob's theorem}
+
+\begin{proposition}\label{prop:S}
+The system $S$ is a consistent, recursively presented extension of $B$.
+It is conservative over $B$ for arithmetic sentences, has logarithmic
+numerals and nested priced abbreviations, and satisfies the
+Hilbert--Bernays--L\"ob derivability conditions for $\Box_S$.
+For each $n$, both $R_n$ and $p_n$ are $S$-theorems.
+\end{proposition}
+\begin{proof}
+Every $B$-proof is an $S$-proof: it contains no new predicate symbols,
+so the extra finite tests are vacuous. The new syntax and checker are
+effective and primitive recursive. By Lemma~\ref{lem:hard}, all the tests
+$H(j)$ are true for standard $j$. Thus each one-line extra-axiom proof
+of $R_n$ is accepted.
+
+For consistency, interpret every $p_j$ as the arithmetic tautology $0=0$,
+leaving all arithmetic unchanged. Every extra axiom becomes
+$\Box_Sp_j\to(0=0)$, a $B$-theorem. In this expression $\Box_Sp_j$ is
+an arithmetic formula containing the numeral $\num{2j+1}$; its numeral
+is left unchanged by the interpretation. Logical axioms, PA induction
+instances, and inference rules translate to valid $B$-derivations.
+Consequently an $S$-proof of an arithmetic sentence gives a $B$-proof of
+that same sentence. In particular an $S$-contradiction would contradict
+the consistency of $B$.
+
+For completeness, the required derivability conditions hold for the
+specified verifier, rather than being assumed for an arbitrary predicate.
+\begin{enumerate}
+\item If $S\vdash A$, the acceptance computation of its particular finite
+proof can be verified in $B$. Hence $B\vdash\Box_S A$.
+\item PA proves correctness of the primitive recursive proof-composition
+operation for modus ponens. Combining two accepted proof files introduces
+no new primitive predicate tokens; all the requisite tests $H(j)$ were
+already checked in the input files. This proves
+\[
+ S\vdash\Box_S(A\to B')\to(\Box_S A\to\Box_S B').
+\]
+\item The formula $\Box_S A$ is arithmetical $\Sigma_1$, using a
+$\Sigma_1$ presentation of $V$. Formalized $\Sigma_1$-completeness in PA
+gives $\Box_S A\to\Box_B\Box_S A$. PA also proves that purely arithmetic
+$B$-proofs embed into $S$, since the added tests are vacuous for those files.
+It follows that $S\vdash\Box_S A\to\Box_S\Box_S A$.
+\end{enumerate}
+The diagonal lemma is available in the expanded language, as usual for an
+extension of arithmetic. L\"ob's theorem therefore applies to $S$. Applying
+it to its theorem $R_n$ proves $S\vdash p_n$.
+\end{proof}
+
+The tests do not add certificates or padding to the written proofs.
+Combining and specializing proofs uses the underlying Hilbert syntax.
+In particular, appending $P\to(\Box_S P\to P)$ and a modus-ponens line
+gives the cheap-reflection inequality from MAIS-A1, with some fixed $C_1$.
+The added formulas introduce no new $p_j$ outside those already in $P$:
+the quotation in $\Box_S P$ is arithmetic text. One can omit explicit
+line references in an MP record and let the checker find the premises,
+so this argument does not assume that arbitrarily large line numbers
+have constant character cost.
+
+\section{The polynomial interpretation and the lower bound}
+
+Define the interpretation $I$ by
+\[
+ I(p_j)=D_j,
+\]
+and let $I$ act identically on arithmetic and commute with logical
+connectives and quantifiers. Every $D_j$ is closed. In particular, $I$
+does \emph{not} replace a quoted old formula code by the code of its
+interpretation. Therefore
+\begin{equation}\label{eq:translated-reflection}
+ I(R_j)=\bigl(\exists\pi\,V(\pi,\num{2j+1})\bigr)\to D(\num j),
+\end{equation}
+which is an instance of the uniform $B$-theorem
+\eqref{eq:uniform-image}.
+
+\begin{lemma}\label{lem:translate}
+There is a fixed integer $C\ge1$ such that any $S$-proof $\pi$ of $A$,
+of written length $m$, can be translated into a $B$-proof of $I(A)$
+of written length at most $C(m+1)$.
+\end{lemma}
+\begin{proof}
+Let $J$ be the finite set of indices of primitive predicates actually written
+in $\pi$. Whole-expression abbreviations cannot create a new predicate token.
+Consequently every predicate in an expanded record belongs to $J$, and
+\[
+ \sum_{j\in J}\bigl(1+\bits(j)\bigr)\le c_0(m+1)
+\]
+for a fixed encoding constant $c_0$. This charges each distinct index to one
+of its literal occurrences in the input; it does not bound each index by $m$
+and then unnecessarily pay that bound $m$ times.
+
+For each $j\in J$, introduce a fresh $B$-abbreviation $d_j$ for
+$D(\num j)$. Its name is a binary-indexed abbreviation name of length
+$O(1+\bits(j))$, not a new primitive symbol. The total cost of these
+definitions is $O(m+1)$. Translate the original definitions in order and the
+original records by replacing $p_j$ with $d_j$ while retaining references to
+earlier definitions. This costs $O(m+1)$ characters: each replacement name
+has at most a constant multiple of the source predicate name's length.
+
+Freshness can be implemented without a $\log m$ factor. Reserve disjoint
+fixed residue classes of binary abbreviation indices for renamed source
+names, the names $d_j$, and the finitely many names used by fixed proof
+templates. Sending an index $i$ to $qi+r$, for fixed $q,r$, increases its
+self-delimiting binary name length by at most a constant factor. No original
+name is assumed to have constant size.
+
+Before processing the translated input records, include one copy of the
+fixed proof of \eqref{eq:uniform-image}. For each $j\in J$, instantiate
+that theorem once at $\num j$ and retain the resulting proof of
+\[
+ I(R_j)=\bigl(\exists\pi\,V(\pi,\num{2j+1})\bigr)\to D(\num j).
+\]
+The canonical numeral for $2j+1$ is $b_1(\num j)$. Thus this preparation
+costs $O(1+\bits(j))$ characters per index, and $O(m+1)$ altogether.
+The preparation uses only the new definitions, so it can precede all source
+definitions. It establishes each needed reflection image once, even if the
+source proof invokes that axiom repeatedly.
+
+Logical and arithmetic axioms translate to axioms; induction instances remain
+induction instances. Modus ponens and generalization remain valid, and their
+side conditions are preserved because the replacements $D_j$ are closed.
+Replace an extra-axiom record by a reiteration of its already proved image.
+No new rule is necessary: prove $F\to F$ by a fixed propositional template
+and apply modus ponens to the earlier $F$. Here $F$ is written using the
+translated representation of that source record, including any abbreviations
+then in scope. The cost is a constant multiple of that record's written
+length. Premise lookup uses equality of expanded formulas, so the cached
+proof and this representation need not use the same abbreviation names.
+We use the permitted version of Hilbert records in which the verifier finds
+modus-ponens premises, rather than requiring explicit line references.
+
+Summing these costs gives $C(m+1)$. The last translated inference concludes
+$I(A)$, including when the source's last line is a reflection axiom. The
+argument bounds written proof length without expanding the definition graph.
+It does not assert a polynomial running time for the translator.
+\end{proof}
+
+\begin{theorem}\label{thm:main}
+For the system $S$ above there are fixed constants $a,b,C\ge1$ such that,
+for every $n\ge0$,
+\begin{align}
+ |p_n|+1&\le b(1+\bits(n)),\label{eq:pn-size}\\
+ \ell_S(\Box_Sp_n\to p_n)&\le a(1+\bits(n)),\label{eq:reflection-upper}\\
+ \ell_S(p_n)&>n/C-1,\label{eq:direct-lower}
+\end{align}
+where $\bits(n)$ is the binary digit length, with $\bits(0)=1$.
+Moreover $\ell_S(\Box_Sp_n\to p_n)\to\infty$ as $n\to\infty$.
+Thus a tail of this family satisfies \eqref{eq:target}.
+\end{theorem}
+\begin{proof}
+The first bound follows from the binary coding of predicate names.
+The second is the length of the one-line axiom proof of $R_n$.
+The fixed arithmetic formula $V$ contributes a constant; the numeral
+$\num{2n+1}$ and the name $p_n$ each contribute $O(\log(n+2))$.
+The finite check required to accept this line is true by
+Lemma~\ref{lem:hard}, and its computation time is not proof-file length.
+
+Let $m=\ell_S(p_n)$, which is finite by Proposition~\ref{prop:S}.
+Lemma~\ref{lem:translate} gives a $B$-proof of $D_n$ of length at most
+$C(m+1)$. Lemma~\ref{lem:hard} implies
+\[
+ n<\ell_B(D_n)\le C(m+1),
+\]
+and hence \eqref{eq:direct-lower}.
+
+For every fixed length bound $M$ there are only finitely many proof files
+with at most $M$ characters. Each has one designated conclusion. The
+sentences $R_n$ are pairwise syntactically distinct, so only finitely many
+can have such a proof. This proves that their least proof lengths tend
+to infinity, including in the presence of abbreviations.
+
+Finally $n$ eventually dominates every fixed multiple of
+$1+\bits(n)$. The lower bound therefore eventually exceeds
+$2a(1+\bits(n))+C_1b(1+\bits(n))$, which implies
+\eqref{eq:target}.
+\end{proof}
+
+\paragraph{An explicit rule selecting the witness sequence.}
+The proof need not leave the choice of a tail informal. Fix integer constants
+$a,b,C,C_1$ from the displayed proof templates and translation. Set
+\[
+ T(n)=(2a+C_1b)(1+\bits(n)).
+\]
+Let $n_0$ be the least positive integer satisfying
+$n_0\ge C(T(n_0)+1)$, and let $n_{i+1}$ be the least integer greater
+than $n_i$ satisfying the same decidable inequality. These searches terminate
+because $n/(1+\bits(n))\to\infty$.
+Put $P_i=p_{n_i}$. If an $S$-proof of $p_{n_i}$ had length at most $T(n_i)$,
+its interpretation would contradict
+$n_i<\ell_B(D_{n_i})$. Thus
+\[
+ \ell_S(P_i)>T(n_i)
+ \ge 2\ell_S(\Box_SP_i\to P_i)+C_1(|P_i|+1).
+\]
+This specifies an effective family and the concrete factor $\delta=1$;
+numerical values of the constants await an implementation of the fixed
+proof templates, rather than being asserted without a character ledger.
+
+\section{Adversarial checks and the limits of the result}
+
+\paragraph{No axiom is accepted by an oracle.}
+The only unusual acceptance condition is the finite computation $H(j)$.
+It halts even if the consistency assumption is dropped. Consistency is used
+to show that its standard output is true, not to make it computable.
+
+\paragraph{The proof predicate is the right one.}
+Equation \eqref{eq:verifier-fp} is a PA theorem identifying $V$ with the
+actual parameterized verifier at its fixed description. The reflection
+axioms use $\Box_S$, not provability in a stronger background theory or
+an unaligned surrogate. The derivability conditions were checked separately.
+
+\paragraph{The use of L\"ob is legitimate.}
+L\"ob is invoked after consistency, the actual accepted reflection proofs,
+and the derivability conditions have been established. It is not used to
+justify acceptance of an axiom or the finite G\"odel lower bound.
+
+\paragraph{The lower bound quantifies over every direct proof.}
+The interpretation applies to an arbitrary $S$-proof, including one using
+other reflection axioms, induction, or an unexpected shortcut. Its output
+is a forbidden short proof of $D_n$ if the input is too short. Merely comparing
+two particular proof scripts would not establish this.
+
+\paragraph{Abbreviations have not been silently expanded.}
+The translation preserves the definition graph. Closed replacements preserve
+binding conditions. Identifier characters are charged. Restricting
+abbreviations to complete expressions is a declared choice of system and
+prevents a short file from manufacturing a primitive predicate name of
+exponentially many digits.
+
+\paragraph{The bottleneck is internalizing an accepted proof.}
+A one-line proof of $R_n$ is accepted after the external checker completes
+$H(n)$. To prove internally that this particular file is accepted, arithmetic
+must establish the relevant check. The existence of a primitive recursive
+checker gives no polynomial bound on the length of that internal
+verification. The example exploits precisely this missing requirement.
+
+Although every standard test $H(n)$ succeeds, $B$ cannot prove
+$\forall n\,H(n)$. Otherwise \eqref{eq:finite-diagonal} would give a fixed
+proof of $\forall n\,D(n)$, whose numeral instances would have
+$O(\log(n+2))$-length proofs, contrary to Lemma~\ref{lem:hard}.
+Consequently one cannot simply erase the guard inside arithmetic because
+it is extensionally redundant. The choice of the actual verifier and its
+arithmetization is essential.
+
+This is not a lower bound on the complexity of the \emph{set} of accepted
+files. An externally equivalent algorithm can omit all the true tests and
+check only the underlying Hilbert derivation. Its arithmetic acceptance
+formula is then different. An external equality of accepted files does not
+supply a PA proof identifying that formula with $V$. Thus a slow specified
+algorithm, a polynomial-time decidable proof relation, and an efficiently
+internalizable provability formula are three different assertions.
+
+\paragraph{Why this is not a solution for the default PA presentation.}
+The system has new primitive sentence symbols, extra reflection axioms, and
+a slow verification condition. The ability to abbreviate expressions, by
+itself, does not license replacing the specified $\PAbin$ by this system
+when answering a question that fixes $\PAbin$. Theorem~\ref{thm:main}
+answers only the explicitly allowed chosen-system branch of MAIS-O11(1).
+
+\paragraph{What follows for the overhead function.}
+For $k_n=a(1+\bits(n))$ and $r_n=b(1+\bits(n))$, the definition in
+MAIS-A1 gives
+\[
+ F_S(k_n,r_n)\ge\ell_S(p_n)>n/C-1.
+\]
+Thus this particular $F_S$ is not bounded by any polynomial in its two
+arguments. This shows that the three-clause definition of efficiency alone
+cannot force polynomial L\"ob overhead. It does \emph{not} decide
+the conjecture for $F_{\PAbin}$ in MAIS-O11(2)/MAIS-O10.
+
+\paragraph{What is not being claimed about the companion problems.}
+The elementary runtime bound above is not a bound on the shortest arithmetic
+proof verifying acceptance. No tight expansion bound, internal budget certificate with explicit constants,
+FairBot threshold, or bounded-$\mathsf{GL}$ theorem is obtained here.
+The resource-bounded companion statements have further uniform certificate
+hypotheses. This note establishes the unbounded chosen-system separation;
+it does not substitute that result for those additional obligations.
+The chosen verification procedure is slow; no lower bound against all
+extensionally equivalent checking algorithms is asserted. Replacing its
+arithmetization by the one associated with a different checker changes the
+reflection formula under study. The arithmetic-only variant avoids the
+language extension, but fails uniform instantiation. No answer for the
+standard, fixed-verifier problem is asserted.
+
+\section{An arithmetic-only variant and an exact obstruction}
+\label{sec:arithmetic-variant}
+
+The new predicate symbols can be avoided if one asks only for the unbounded
+L\"ob conditions and the three-clause definition of efficiency. This variant
+has exactly the same accepted proof files as $B$, under the consistency
+assumption. It nevertheless uses a different checker and a different
+arithmetization of provability. It fails the agenda's additional uniform
+instantiation requirement. Both facts are essential to its interpretation.
+
+\subsection{A recognizable hard arithmetic family}
+
+Reserve the arithmetic variable $z_0$. A variant of the first diagonal
+construction gives a fixed formula
+\[
+ G(x)=\forall z_0\,\bigl(x=x\wedge E(x)\bigr)
+\]
+with $z_0$ absent from $E$, and a PA-provably $\Delta_1$ predicate $K$, such
+that
+\begin{equation}\label{eq:arithmetic-diagonal}
+ B\vdash\forall x\,(G(x)\leftrightarrow K(x)),\qquad
+ K(n)\equiv\text{no $B$-proof of $G(\num n)$ has length at most $n$}.
+\end{equation}
+For clarity, this is not an arbitrary syntactic modification of an existing
+fixed point. Apply the parameterized diagonal lemma to the operator that,
+given a formula code $e$, first wraps that formula as
+$\forall z_0(x=x\wedge\cdot)$ and then tests for short proofs of its numeral
+instances. The resulting $E$ asserts the absence of a short proof of the
+wrapped formula $G$. Since the wrapper is provably equivalent to $E$, this
+gives \eqref{eq:arithmetic-diagonal}. The diagonal construction can use
+variables other than $z_0$. The visible conjunct $x=x$ ensures that different
+canonical numeral instances $G_n:=G(\num n)$ are syntactically distinct.
+
+Exactly as in Lemma~\ref{lem:hard}, consistency gives, for every standard $n$,
+\begin{equation}\label{eq:arithmetic-hard}
+ K(n),\qquad B\vdash G_n,\qquad \ell_B(G_n)>n.
+\end{equation}
+In particular $B\nvdash\forall n\,K(n)$: such a theorem, combined with
+\eqref{eq:arithmetic-diagonal}, would give $O(\log(n+2))$-length proofs of
+all the $G_n$ by numeral instantiation, contradicting the last inequality.
+
+Use a new formula coding $c_*$ in which $c_*(G_n)=2n+1$ and every other
+formula has an even ordinary string code. This coding is injective, primitive
+recursive, and has linear-size quoted numerals. The base coding used inside
+$K$ is unchanged. This separation of the two codings avoids a circular
+definition of $G$.
+
+\subsection{The actual arithmetic checker}
+
+Define $\Prf_*(\pi,y)$ to mean the following. Decode $y$ using $c_*$; check
+that $\pi$ is a $B$-proof of that formula; expand its definitions; and, for
+every subformula of every expanded record or definition that is exactly a
+canonical instance $G_n$, run the finite test $K(n)$ and require success.
+This is a primitive recursive, PA-provably terminating algorithm. All these
+tests succeed on standard inputs by \eqref{eq:arithmetic-hard}. Thus, if
+$S_*$ is the system checked by this algorithm, then
+\begin{equation}\label{eq:identical-files}
+ \{\text{$S_*$-proof files}\}=\{\text{$B$-proof files}\},\qquad
+ \ell_{S_*}(A)=\ell_B(A).
+\end{equation}
+The equality is an external theorem from consistency. It is not an
+equivalence of the two proof predicates provable in $B$.
+
+Choose a $\Sigma_1$ presentation $V_*(u,y)$ of this PA-provably $\Delta_1$
+checker, renaming all its variables to avoid $z_0$, and set
+$\Box_*A:=\exists u\,V_*(u,\num{c_*(A)})$. The existential binder also
+avoids $z_0$. No quoted formula occurs literally inside its quotation, so
+\emph{every} formula $\Box_*A$ contains no variable token $z_0$.
+
+The guard gives a fixed uniform theorem
+\begin{equation}\label{eq:arithmetic-reflection}
+ B\vdash\forall n\,\Bigl((\exists u\,V_*(u,b_1(n)))\to G(n)\Bigr).
+\end{equation}
+Indeed an accepted proof with conclusion code $2n+1$ has conclusion $G_n$,
+so its conclusion itself triggers the test $K(n)$. Use
+\eqref{eq:arithmetic-diagonal} to finish. Instantiating the fixed proof at
+$\num n$ costs $O(\log(n+2))$ characters. By
+\eqref{eq:identical-files}, those are also $S_*$-proofs. Hence
+\begin{equation}\label{eq:arithmetic-separation}
+ \ell_{S_*}(\Box_*G_n\to G_n)=O(\log(n+2)),\qquad
+ \ell_{S_*}(G_n)>n.
+\end{equation}
+Reflection lengths tend to infinity by the same finite-file argument as
+before. Appending a cheap reflection proof introduces no new guarded
+subformula: $\Box_*A$ has no $z_0$, and all guarded subformulas in $A$ were
+already checked in the given proof. Thus the additive toll also remains
+available, and a tail of this family satisfies the requested $\delta=1$
+inequality.
+
+\subsection{Why L\"ob's theorem still applies}
+
+This is not merely a predicate chosen to make a reflection statement easy.
+The following verifies all three unbounded derivability conditions.
+\begin{enumerate}
+\item An actual accepted proof has a finite acceptance computation verifiable
+in $B$. By \eqref{eq:identical-files}, the resulting theorem is also an
+$S_*$-theorem. This is external necessitation.
+\item Concatenate accepted proofs of $A\to F$ and $A$, rename abbreviation
+identifiers to avoid collisions, and append $F$ by modus ponens. The appended
+formula $F$ is already a subformula of the first input's conclusion. Thus no
+new $G_n$ test is required. PA proves this syntactic fact and consequently
+proves the distribution axiom for $\Box_*$. The proof itself belongs to
+$S_*$ by \eqref{eq:identical-files}.
+\item Formalized $\Sigma_1$-completeness for the ordinary base checker gives
+\[
+ B\vdash\Box_*A\to\Box_B(\Box_*A).
+\]
+It remains to embed these particular $B$-proofs into $S_*$, without assuming
+a general proof-predicate equivalence. Fix a finite set of variable names
+containing every variable in the template $\exists u\,V_*(u,y)$ and excluding
+$z_0$. There is a primitive recursive injective renaming of all arithmetic
+variables which fixes this finite set and has $z_0$ outside its image. For
+example, fix indices $1,\ldots,M$, send $0$ to $M+1$, and send $i>M$ to
+$i+1$. Apply this renaming throughout a $B$-proof of $\Box_*A$ and its
+definitions. Logical axioms, PA induction, and inference rules remain valid;
+the conclusion is unchanged. The renamed file has no $z_0$, so it has no
+subformula $G_n$ and all additional tests are vacuous. PA proves correctness
+of this transformation. Therefore
+\[
+ B\vdash\Box_B(\Box_*A)\to\Box_*(\Box_*A),
+\]
+and hence $S_*\vdash\Box_*A\to\Box_*\Box_*A$.
+\end{enumerate}
+The diagonal lemma is available for the new effective coding. These facts
+establish applicability of ordinary L\"ob's theorem. The proof of the
+separation itself already supplies theorems on both sides independently.
+
+\subsection{The exact uniform property that fails}
+
+Let $\tau(x):=G(x)\to G(x)$. There is a fixed $S_*$-proof of
+$\forall x\,\tau(x)$, since it is a $B$-theorem and the accepted proof files
+coincide. But
+\begin{equation}\label{eq:uniform-failure}
+ S_*\nvdash\forall n\,\Box_*\tau(\num n).
+\end{equation}
+The expression here denotes the usual arithmetized numeral-instance coding.
+To prove the claim, an accepted proof of $\tau(\num n)$ contains $G_n$ as a
+subformula of its conclusion. PA therefore proves uniformly that
+$\Box_*\tau(\num n)\to K(n)$. A theorem excluded by
+\eqref{eq:uniform-failure} would give a $B$-proof of $\forall n\,K(n)$,
+contradicting \eqref{eq:arithmetic-hard}.
+
+Thus even the unbounded conclusion of the agenda's quantifier-distribution
+principle fails here; its bounded version cannot hold. This variant answers
+only the literal unbounded, chosen-presentation question. It must not be used
+to instantiate the stronger resource-bounded hypotheses. The main
+construction avoids this particular obstruction: substituting a numeral for
+an arithmetic variable does not create a new nullary predicate symbol.
+
+The possibility that externally identical theories have internally different
+provability predicates is familiar from the slow-provability literature; see
+Henk and Pakhomov \cite{henk-pakhomov}. That literature does not, by itself,
+establish the particular size separation above. The finite tests, syntactic
+renaming argument, and lower bound are the required additional ingredients.
+
+\section{Rejected mechanisms and a precise formalization target}
+
+Two simpler constructions do not answer the intended question. First,
+requiring extra padding only for direct conclusions creates a formal size
+gap but can destroy cheap proof composition. The present construction
+adds no such padding. Second, a finite G\"odel sentence by itself supplies
+a lower bound on $\ell_B(D_n)$, but supplies no short proof of
+$\Box_BD_n\to D_n$. The new verifier and interpretation are what bridge
+that missing step in the chosen system.
+
+Another attempted route is to make a sentence assert that every proof of
+it has a sufficiently shorter reflection proof. Consistency may then enforce
+the desired comparison \emph{if the sentence is provable}, but it does not
+establish that provability. Unprovability of both sentences is compatible
+with the proposed comparison. The present construction supplies actual
+reflection proofs and checks L\"ob's applicability instead.
+
+For a Lean development, the following are separate mathematical obligations:
+\begin{enumerate}
+\item Define the base and extended syntax, proof files, expansion, actual
+character lengths, and the primitive recursive checkers.
+\item Formalize the uniform finite diagonal family, prove the hard-sentence
+lemma from consistency, and formalize the second diagonal construction for
+$V$. These require syntax and arithmetization, not merely a modal box axiom.
+\item Prove the guard invariant, consistency/conservativity, and the
+derivability conditions for the actual checker.
+\item Implement the interpretation on compressed proof files and verify its
+length bound. Prove that it handles every admitted rule and side condition.
+\item Derive the explicit family inequality and audit all assumptions of the
+final theorem. Consistency of the chosen PA presentation must be supplied
+or proved in the metatheory; it must not disappear behind an undeclared axiom.
+\end{enumerate}
+Formalizing only the last inequality while assuming the guard and translation
+lemmas would certify a conditional transfer theorem, not the whole construction.
+This note contains no Lean files and no claim that Lean has checked it.
+
+\begingroup\small
+\begin{thebibliography}{9}
+\bibitem{agenda}
+\emph{Quantitative bounded L\"ob: proof-length overheads in L\"ob's theorem
+and L\"obian cooperation}, MAIS-A1, uploaded version; and
+\emph{Does L\"ob's rule shorten proofs?}, MAIS-O11, uploaded version.
+The chosen-system permission is in Question 3.6(1) / MAIS-O11(1).
+
+\bibitem{critch}
+A. Critch, \emph{A parametric, resource-bounded generalization of L\"ob's
+theorem, and a robust cooperation criterion for open-source game theory},
+Journal of Symbolic Logic 84 (2019), 1368--1381.
+\url{https://arxiv.org/abs/1602.04184}.
+
+\bibitem{pudlak2017}
+P. Pudl\'ak, \emph{Incompleteness in the finite domain},
+Bulletin of Symbolic Logic 23 (2017), 405--441.
+\url{https://arxiv.org/abs/1601.01487}.
+
+\bibitem{pudlak1998}
+P. Pudl\'ak, \emph{The lengths of proofs}, in S. R. Buss (ed.),
+Handbook of Proof Theory, Elsevier, 1998, 547--637.
+Section 2.1 uses polynomial-time decidability of the proof relation.
+That extensional complexity property must be distinguished from the choice
+of an arithmetic formula representing the relation.
+\url{https://users.math.cas.cz/~pudlak/length.pdf}.
+
+\bibitem{henk-pakhomov}
+P. Henk and F. Pakhomov, \emph{Slow and Ordinary Provability for Peano
+Arithmetic}, 2016 preprint, version 2.
+\url{https://arxiv.org/abs/1602.01822}.
+\end{thebibliography}
+\endgroup
+\end{document}

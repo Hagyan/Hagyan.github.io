@@ -1,0 +1,48 @@
+FILE BarrierDemo.lean EXIT_CODE 0
+[(0, 14, some 1), (1, 40, some 3), (4, 138, some 31), (8, 290, some 511), (12, 458, some 8191)]
+'MAISO11.Quotation.doubledTree_nodes' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.parsed_expansion_barrier' depends on axioms: [propext, Quot.sound]
+
+FILE CheckerDemo.lean EXIT_CODE 0
+PASS: nested instantiation
+PASS: valid complete proof
+PASS: incorrect MP conclusion
+PASS: unjustified reflexivity axiom
+PASS: wrong record count
+PASS: trailing garbage
+PASS: empty proof
+PASS: compiled dictionary and referenced terms
+'MAISO11.Wire.instance_candidate' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.axiomCheck_iff' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.checkWhole_sound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.compiled_trace_checked' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+FILE DagDemo.lean EXIT_CODE 0
+PASS n=0: 3 graph nodes, 6 scheduled comparisons; expanded root has 3 tree nodes
+PASS n=4: 7 graph nodes, 42 scheduled comparisons; expanded root has 63 tree nodes
+PASS n=20: 23 graph nodes, 506 scheduled comparisons; expanded root has 4194303 tree nodes
+PASS n=60: 63 graph nodes, 3906 scheduled comparisons; expanded root has 4611686018427387903 tree nodes
+'MAISO11.Shared.Graph.table_iff' depends on axioms: [propext, Quot.sound]
+'MAISO11.Shared.comparisonCalls_exact' depends on axioms: [propext, Quot.sound]
+'MAISO11.Shared.tableWrites_cubic' depends on axioms: [propext, Quot.sound]
+'MAISO11.Shared.doublingGraph_matches_definitions' depends on axioms: [propext, Quot.sound]
+'MAISO11.Shared.duplicateRoot_expanded_nodes' depends on axioms: [propext, Quot.sound]
+
+FILE ExportExamples.lean EXIT_CODE 0
+
+FILE ParserDemo.lean EXIT_CODE 0
+some []
+some true
+true
+false
+true
+false
+
+FILE SharedMPDemo.lean EXIT_CODE 0
+PASS: MP, shared equal roots
+PASS: MP, reject an unequal root
+'MAISO11.Wire.formulaEqual_iff' depends on axioms: [propext]
+'MAISO11.Wire.mpEqual_iff' depends on axioms: [propext]
+'MAISO11.Wire.Records.checkWithTermEqual_iff' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.Records.checkWithTermEqual_derivable' depends on axioms: [propext, Quot.sound]
+'MAISO11.Wire.graphReferenceEqual_correct' depends on axioms: [propext, Quot.sound]

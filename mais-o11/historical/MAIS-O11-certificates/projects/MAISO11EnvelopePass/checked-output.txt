@@ -1,0 +1,60 @@
+$ lean --version
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+
+exit_code=0
+
+$ lake build
+✔ [2/5] Built Envelope
+✔ [4/5] Built FiniteFiles
+Build completed successfully.
+
+exit_code=0
+
+$ lake env lean Audit.lean
+MAISO11.Envelope.Lengths (α : Type) : Type
+MAISO11.Envelope.Lengths.HasSpeedup {α : Type} (M : MAISO11.Envelope.Lengths α) : Prop
+MAISO11.Envelope.Lengths.Sublinear (h : Nat → Nat) : Prop
+MAISO11.Envelope.Lengths.hasSpeedup_iff_witness_sequence {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.HasSpeedup ↔ ∃ q, 0 < q ∧ ∃ p, ∀ (i : Nat), i ≤ M.reflection (p i) ∧ M.Separated q (p i)
+MAISO11.Envelope.Lengths.noSpeedup_iff_not_hasSpeedup {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.NoSpeedup ↔ ¬M.HasSpeedup
+MAISO11.Envelope.Lengths.noSpeedup_iff_sublinear_envelope {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.NoSpeedup ↔ MAISO11.Envelope.Lengths.Sublinear M.envelope
+MAISO11.Envelope.Lengths.hasSpeedup_iff_not_sublinear_envelope {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.HasSpeedup ↔ ¬MAISO11.Envelope.Lengths.Sublinear M.envelope
+MAISO11.Envelope.Lengths.noSpeedup_iff_sublinear_converter {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.NoSpeedup ↔
+    ∃ h, MAISO11.Envelope.Lengths.Sublinear h ∧ ∀ (p : α), M.direct p ≤ M.reflection p + M.toll p + h (M.reflection p)
+MAISO11.Envelope.Lengths.noSpeedup_near_unit_affine {α : Type} (M : MAISO11.Envelope.Lengths α) (hn : M.NoSpeedup)
+  (q : Nat) (hq : 0 < q) : ∃ B, ∀ (p : α), q * M.direct p ≤ (q + 1) * M.reflection p + q * M.toll p + B
+MAISO11.Envelope.Lengths.noSpeedup_overhead_affine {α : Type} (M : MAISO11.Envelope.Lengths α) (hn : M.NoSpeedup) :
+  ∃ B, ∀ (k n : Nat), M.overhead k n ≤ 2 * k + M.tollCoefficient * (n + 1) + B
+MAISO11.Envelope.Lengths.not_linear_overhead_implies_speedup {α : Type} (M : MAISO11.Envelope.Lengths α)
+  (h : ¬M.LinearOverhead) : M.HasSpeedup
+MAISO11.Envelope.Lengths.not_linear_overhead_arbitrary_factor {α : Type} (M : MAISO11.Envelope.Lengths α)
+  (h : ¬M.LinearOverhead) (a : Nat) (ha : 1 ≤ a) (K : Nat) :
+  ∃ p, K ≤ M.reflection p ∧ a * M.reflection p + M.toll p ≤ M.direct p
+MAISO11.Envelope.FiniteFiles.toLengths {α : Type} (a : Nat) (decode : List (Fin a) → Option α)
+  (direct reflection size : α → Nat) (c : Nat)
+  (minimum_spec : ∀ (p : α) (k : Nat), reflection p ≤ k ↔ ∃ w, w.length ≤ k ∧ decode w = some p) :
+  MAISO11.Envelope.Lengths α
+'MAISO11.Envelope.Lengths.noSpeedup_iff_not_hasSpeedup' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Envelope.Lengths.hasSpeedup_iff_witness_sequence' depends on axioms: [Classical.choice]
+'MAISO11.Envelope.Lengths.noSpeedup_iff_sublinear_envelope' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.Lengths.hasSpeedup_iff_not_sublinear_envelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MAISO11.Envelope.Lengths.noSpeedup_iff_sublinear_converter' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.Lengths.noSpeedup_near_unit_affine' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.Lengths.noSpeedup_overhead_affine' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.Lengths.not_linear_overhead_implies_speedup' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MAISO11.Envelope.Lengths.not_linear_overhead_arbitrary_factor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MAISO11.Envelope.FiniteFiles.mem_words' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.FiniteFiles.mem_targets' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.FiniteFiles.toLengths' depends on axioms: [propext, Quot.sound]
+
+exit_code=0

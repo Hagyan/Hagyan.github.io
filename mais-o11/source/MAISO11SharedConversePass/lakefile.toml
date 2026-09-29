@@ -1,0 +1,131 @@
+name = "MAISO11SharedPreludePass"
+version = "0.1.0"
+defaultTargets = ["SharedOracleDemo", "SharedConverseDemo", "CompositionBarrier"]
+
+[[lean_lib]]
+name = "StringQuotation"
+
+[[lean_lib]]
+name = "QuotationWire"
+
+[[lean_lib]]
+name = "LocalCertificates"
+
+[[lean_lib]]
+name = "Examples"
+
+[[lean_lib]]
+name = "ArithmeticTrace"
+
+[[lean_lib]]
+name = "TracePacking"
+
+[[lean_exe]]
+name = "quotationdemo"
+root = "Demo"
+
+[[lean_lib]]
+name = "PAFormula"
+
+[[lean_lib]]
+name = "PairingGraph"
+
+[[lean_lib]]
+name = "CompactWire"
+
+[[lean_lib]]
+name = "CompactProof"
+
+[[lean_lib]]
+name = "CompactParser"
+
+[[lean_lib]]
+name = "CompactChecker"
+
+[[lean_exe]]
+name = "pabincheck"
+root = "CheckFile"
+
+[[lean_lib]]
+name = "CompressionBarrier"
+
+[[lean_lib]]
+name = "DagEquality"
+
+[[lean_lib]]
+name = "CompactEquality"
+
+[[lean_lib]]
+name = "PadBounds"
+
+[[lean_lib]]
+name = "CompositionBarrier"
+
+[[lean_lib]]
+name = "SharedPrelude"
+
+[[lean_lib]]
+name = "SharedPreludeDemo"
+
+[[lean_lib]]
+name = "SharedConverse"
+
+[[lean_lib]]
+name = "SharedConverseDemo"
+
+[[lean_lib]]
+name = "GraphCompiler"
+
+[[lean_lib]]
+name = "SharedOracle"
+
+[[lean_lib]]
+name = "SharedOracleDemo"
+
+[[lean_lib]]
+name = "GraphFileChecker"
+
+[[lean_lib]]
+name = "OpenGraph"
+
+[[lean_lib]]
+name = "GraphSubterms"
+
+[[lean_lib]]
+name = "GraphDepthBarrier"
+
+[[lean_lib]]
+name = "InstantiationGraph"
+
+[[lean_lib]]
+name = "GraphFileCheckerInst"
+
+[[lean_lib]]
+name = "FragmentBalance"
+
+[[lean_lib]]
+name = "SpecTransfer"
+
+[[lean_lib]]
+name = "GrammarLengthBound"
+
+[[lean_lib]]
+name = "FragmentFamily"
+
+[[lean_lib]]
+name = "FragmentPrefix"
+
+[[lean_lib]]
+name = "FragmentRange"
+
+[[lean_lib]]
+name = "CodedScan"
+
+[[lean_lib]]
+name = "ChosenSystemExpansion"
+
+[[lean_lib]]
+name = "ChosenSystemSerialization"
+
+[[lean_lib]]
+name = "ChosenSystemInterleaving"

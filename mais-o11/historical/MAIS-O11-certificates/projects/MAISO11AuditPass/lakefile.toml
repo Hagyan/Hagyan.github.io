@@ -1,0 +1,9 @@
+name = "MAISO11AuditPass"
+version = "0.1.0"
+defaultTargets = ["FirstPass", "AuditPass"]
+
+[[lean_lib]]
+name = "FirstPass"
+
+[[lean_lib]]
+name = "AuditPass"

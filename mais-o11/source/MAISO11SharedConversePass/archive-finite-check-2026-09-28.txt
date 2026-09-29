@@ -1,0 +1,4 @@
+COMMAND: lake env lean SummaryFiniteCheck.lean
+
+
+EXIT_CODE: 0

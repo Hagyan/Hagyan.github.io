@@ -1,0 +1,3 @@
+PASS: packed root table, all intermediate accumulators, lookup equations and grammar round trips.
+Encoded bit lengths: {'grammar': 120766, 'root_table': 326421, 'accumulator_table': 652033, 'combined_local_table': 1304065}
+No expanded word code computed. These are executable coding checks, not PA or Lean proofs.

@@ -1,0 +1,33 @@
+Clean build of only the delivered source/configuration files.
+No pre-existing project object files were copied.
+
+$ lean --version
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+Exit status: 0
+
+$ lake build
+info: MAISO11TaggedPass: no previous manifest, creating one from scratch
+info: toolchain not updated; already up-to-date
+✔ [2/5] Built TaggedBounds
+✔ [4/5] Built TaggedSyntax
+Build completed successfully.
+Exit status: 0
+
+$ lake env lean Audit.lean
+'MAISO11.Tagged.shape_subst' depends on axioms: [propext]
+'MAISO11.Tagged.decode_tag' depends on axioms: [propext]
+'MAISO11.Tagged.target_injective' depends on axioms: [propext]
+'MAISO11.Tagged.target_guard' depends on axioms: [propext]
+'MAISO11.Tagged.guarded_instantiation_axiom' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.core_guarded' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.same_accepted_traces' does not depend on any axioms
+'MAISO11.Tagged.checkedTrace_correct' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.core_trace_acceptance' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.accepted_target_guard' depends on axioms: [propext]
+'MAISO11.Tagged.tag_nodes' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.tag_true' does not depend on any axioms
+'MAISO11.Tagged.factor_two_after' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.no_polynomial_overhead' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.no_polynomial_bridges' depends on axioms: [propext, Quot.sound]
+Exit status: 0
+

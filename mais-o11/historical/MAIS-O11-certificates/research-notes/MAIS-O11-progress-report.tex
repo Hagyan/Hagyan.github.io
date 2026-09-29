@@ -1,0 +1,951 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in,top=0.9in,bottom=0.9in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,longtable,array}
+\usepackage{xcolor,enumitem,listings,fancyhdr}
+\definecolor{ink}{RGB}{25,52,78}
+\definecolor{papergray}{RGB}{246,248,250}
+\usepackage[colorlinks=true,linkcolor=ink,urlcolor=ink,citecolor=ink]{hyperref}
+\hypersetup{pdftitle={MAIS-O11: Consolidated Progress and Lean Certificates},
+  pdfauthor={Research record for Andrew Hagy},
+  pdfsubject={Proof lengths, Lob's theorem, PA-bin, and verification scope}}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\textcolor{ink}{MAIS-O11 \;|\; Consolidated progress}}
+\fancyhead[R]{\small 23 September 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\emergencystretch}{2em}
+\setlist{itemsep=3pt,topsep=5pt}
+\lstset{basicstyle=\small\ttfamily,breaklines=true,columns=fullflexible,
+  keepspaces=true,backgroundcolor=\color{papergray},frame=single,
+  rulecolor=\color{black!15},xleftmargin=5pt,xrightmargin=5pt,
+  aboveskip=9pt,belowskip=9pt,showstringspaces=false}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\PA}{\mathsf{PA}}
+\newcommand{\PAbin}{\mathsf{PA}_{\mathrm{bin}}}
+\newcommand{\Con}{\operatorname{Con}}
+\newcommand{\Prf}{\operatorname{Prf}}
+\newcommand{\Prov}{\operatorname{Prov}}
+\newcommand{\gn}[1]{\ulcorner #1\urcorner}
+\newcommand{\num}[1]{\overline{#1}}
+\newcommand{\N}{\mathbb N}
+\newcommand{\cO}{\mathcal O}
+\newcommand{\status}[1]{\par\smallskip\noindent\textbf{Verification scope.} #1\par\smallskip}
+\title{\textcolor{ink}{Does L\"ob's rule shorten proofs?}\\[5pt]
+  \large MAIS-O11: consolidated progress and Lean certificates}
+\author{Research record for Andrew Hagy\\
+  \small AI-assisted mathematical development and verification audit}
+\date{23 September 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+This report consolidates the slow-verifier and connective-tag constructions,
+the conditional quantitative L\"ob conversion, the raw-string quotation and
+trace compiler, the proof-assembly obstruction, and the latest finite-budget
+envelope theorem. The strongest new structural conclusion is exact: for a
+fixed provability predicate and toll, absence of a part~1 witness is equivalent
+to sublinearity of the maximum excess over the reflection-proof length. This
+negative condition implies a joint linear bound for the overhead function.
+Conversely, failure of every joint linear bound already yields witnesses with
+every fixed integer factor. These implications are verified in Lean.
+
+Neither part has been decided for the intended ordinary $\PAbin$ checker.
+The supplied certificates establish the precise abstract, syntactic, and
+numerical statements identified below; they do not instantiate every
+arithmetical hypothesis of the earlier chosen-presentation constructions.
+The accompanying cumulative archive preserves six Lean projects, their
+research notes, and a single command for rebuilding and auditing all six.
+\end{abstract}
+
+\paragraph{How to read this report.}
+Sections~\ref{sec:envelope}--\ref{sec:consequences} give the latest structural
+result and its full mathematical proof. Sections~\ref{sec:early}--\ref{sec:obstruction}
+record the earlier mechanisms, implementation milestones, and failed transfer
+routes. Section~\ref{sec:ledger} maps the claims to certificates and explains
+how to verify them locally. The report supersedes the earlier manuscript as
+the summary of \emph{verification status}; the earlier manuscript and detailed
+milestone notes remain in the archive as research history.
+
+\clearpage
+{\small\tableofcontents}
+\clearpage
+
+\section{The fixed question and the scope of the comparison}
+\label{sec:question}
+
+Fix one proof system $S$, one arithmetization $\Box_S$ of its checker, and
+one nonnegative integer $c=C_1$ for the cheap-reflection toll. For a provable
+sentence $P$, write
+\begin{equation}\label{eq:notation}
+ d(P)=\ell_S(P),\qquad r(P)=\ell_S(\Box_S P\to P),\qquad
+ s(P)=|P|,\qquad t(P)=c(s(P)+1).
+\end{equation}
+The agenda's cheap direction is $r(P)\le d(P)+t(P)$.
+Part~1 asks for a fixed $\delta>0$ and a sequence $P_i$ such that
+\begin{equation}\label{eq:partone}
+ r(P_i)\longrightarrow\infty,\qquad
+ d(P_i)\ge(1+\delta)r(P_i)+t(P_i).
+\end{equation}
+Part~2 concerns the fixed ordinary $\PAbin$ presentation and the function
+\begin{equation}\label{eq:F}
+ F_S(k,n)=\max\bigl(\{d(P):r(P)\le k,\ s(P)\le n\}\cup\{0\}\bigr).
+\end{equation}
+It asks whether this function has a fixed polynomial upper bound in $k+n$.
+Adding $1$ to this argument is harmless for growth; the ordinary checker
+accepts no empty proof, so the zero-budget corner can also be handled directly.
+The maximum includes $0$ to cover an empty set of eligible sentences.
+
+\subsection{A necessary finite-proof convention}
+The agenda allows $\ell_S(P)=\infty$ for unprovable $P$. If the displayed
+part~1 condition is read literally in the extended naturals, without requiring
+finite proofs, it has an unintended loophole. In a consistent system satisfying
+L\"ob's theorem, both $\bot$ and $\Box_S\bot\to\bot$ are unprovable.
+The constant sequence $P_i=\bot$ then has $d(P_i)=r(P_i)=\infty$ and
+satisfies an extended-arithmetic reading of the inequality and divergence.
+This is not proof shortening. Throughout this report, part~1 concerns
+\emph{provable} sentences and finite minimum lengths. L\"ob's theorem ensures
+that a sentence with a reflection proof has a direct proof; the cheap direction
+gives the converse for the families under consideration.
+
+\subsection{What is being compared}
+A shortest completed $S$-proof of $P$ may itself use a formalized L\"ob argument.
+Thus $d(P)$ already minimizes over proofs obtained that way. The quantity
+$r(P)$ measures the premise \emph{before} the cost of converting it into an
+$S$-proof of $P$ has been paid. One can equivalently view the reflection file
+as a new certificate format with an external L\"ob-rule step about the old box.
+Changing $\Box_S$ changes the question even when the two checkers accept the
+same standard files.
+
+The headline question about saving one symbol is weaker than
+\eqref{eq:partone}. Unbounded additive savings alone need not produce a fixed
+fractional saving after the toll. For example, the numerical pattern
+$d=r+\lfloor\sqrt r\rfloor$, with zero toll, has unbounded additive excess
+but no fixed-factor family. This is an illustration of the quantifiers, not
+an asserted family of PA sentences.
+
+\subsection{The intended PA-bin presentation}
+The uploaded MAIS-A1 fixes a Hilbert presentation based on Enderton, binary
+numerals, a finite character alphabet, tagged proof records, and priced nested
+abbreviations. Definitions may name \emph{arbitrary strings}; later fragments
+may reference earlier definitions. The checker expands these definitions and
+checks the resulting proof. Hence a short source file may expand enormously.
+The specified logical axiom class includes all propositional tautologies,
+which must not silently be replaced by a fixed finite Frege basis.
+
+Two distinctions matter for the remaining work. A polynomial bound in expanded
+length need not be polynomial in written file length. Also, a Lean proof that
+a compiler preserves values is not an object-level PA proof of the fixed
+arithmetized checker predicate. These issues motivate the quotation work in
+Section~\ref{sec:quotation}.
+
+\section{The finite-budget envelope: an exact characterization}
+\label{sec:envelope}
+
+This section assumes only finite-valued $d,r,s$ on the target set and that
+there are finitely many targets with $r(P)\le k$ for each $k$. In a proof system
+over a finite alphabet, that finiteness follows because there are finitely
+many files of bounded length and each file has a single conclusion. It does
+not require a bound on the length of an expanded conclusion.
+
+\begin{definition}[Excess and envelope]
+Set
+\begin{equation}\label{eq:envelope}
+ e(P)=\max\{d(P)-r(P)-t(P),0\},\qquad
+ H(k)=\max\bigl(\{e(P):r(P)\le k\}\cup\{0\}\bigr).
+\end{equation}
+The envelope $H$ is nondecreasing and finite, and
+\begin{equation}\label{eq:universal-envelope}
+ d(P)\le r(P)+t(P)+H(r(P)).
+\end{equation}
+A natural-valued function $h$ is called sublinear when
+\begin{equation}\label{eq:sublinear}
+ \forall q\in\N_{>0}\ \exists K\ \forall k\ge K:\quad qh(k)<k.
+\end{equation}
+This is the usual statement $h(k)=o(k)$, written without real division.
+\end{definition}
+
+It suffices to consider factors $1+1/q$: for any $\delta>0$, choose an
+integer $q\ge1$ with $1/q\le\delta$. For $r(P)>0$, the separation with
+this factor is equivalent to
+\begin{equation}\label{eq:separated}
+ (q+1)r(P)+qt(P)\le qd(P)
+ \quad\Longleftrightarrow\quad r(P)\le q e(P).
+\end{equation}
+Indeed, separation forces $d(P)>r(P)+t(P)$, after which the equivalence
+follows by subtraction. If $d(P)\le r(P)+t(P)$, both sides are false.
+
+\begin{theorem}[Exact negative condition]\label{thm:envelope}
+The following conditions are equivalent.
+\begin{enumerate}[label=(\roman*)]
+\item There is no family satisfying \eqref{eq:partone}.
+\item $H(k)=o(k)$.
+\item There is a function $h=o(k)$ such that, for every target $P$,
+\[
+ d(P)\le r(P)+t(P)+h(r(P)).
+\]
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+First rewrite (i) as the cutoff condition
+\begin{equation}\label{eq:cutoff}
+ \forall q\ge1\ \exists K\ \forall P\quad
+ r(P)\ge K\ \Longrightarrow\ q e(P)<r(P).
+\end{equation}
+If this condition fails for some $q$, there are witnesses at arbitrarily
+large positive reflection lengths by \eqref{eq:separated}. Choose one with
+$r(P_i)\ge i+1$ for each $i$. This gives the required divergent sequence.
+Conversely any separating sequence eventually exceeds a proposed cutoff.
+Using $K+1$ where necessary avoids the exceptional case $r(P)=0$.
+
+Suppose \eqref{eq:cutoff} holds and fix $q$. Choose its cutoff $K$ and take
+$k\ge qH(K)+1$. If $H(k)=0$, then $qH(k)<k$. Otherwise, choose an
+attaining target $P$ with $r(P)\le k$ and $e(P)=H(k)$.
+If $r(P)\ge K$, the cutoff gives
+$qH(k)=qe(P)<r(P)\le k$. If $r(P)<K$, then $e(P)\le H(K)$ and
+$qH(k)\le qH(K)<k$. Thus $H=o(k)$.
+
+Conversely, if $H=o(k)$, choose a cutoff with $qH(k)<k$. For any target
+whose reflection length exceeds that cutoff,
+$qe(P)\le qH(r(P))<r(P)$, proving \eqref{eq:cutoff}.
+This establishes (i)$\Leftrightarrow$(ii).
+
+Condition (ii) implies (iii) by taking $h=H$ in
+\eqref{eq:universal-envelope}. If (iii) holds, then $e(P)\le h(r(P))$.
+The sublinearity cutoff for $h$ immediately gives \eqref{eq:cutoff}, proving
+(iii)$\Rightarrow$(i).
+\end{proof}
+
+\status{The equivalences, cutoff formulation, and witness-sequence selection
+are proved in \texttt{Envelope.lean}. Earlier notes treated a sublinear additive
+converter bound as a stronger sufficient negative condition. The theorem
+above improves that statement: in the finite-budget setting it is equivalent
+to the negative answer. It does not prove that the condition holds for PA-bin.}
+
+\subsection{Finite files supply the interface}
+The module \texttt{FiniteFiles.lean} enumerates all words of length at most
+$k$ over $\operatorname{Fin}(a)$, decodes them, and collects successful targets.
+Its minimum-length premise is precisely
+\begin{equation}\label{eq:minspec}
+ r(P)\le k\ \Longleftrightarrow\
+ \exists w\ (|w|\le k\ \wedge\ \operatorname{decode}(w)=\operatorname{some}(P)).
+\end{equation}
+The resulting finite target list supplies the hypothesis used in
+Theorem~\ref{thm:envelope}. The decoder is a parameter, not an implemented PA
+parser. Equation~\eqref{eq:minspec} is the defining property of minimum
+reflection length; it is not a hidden polynomial-internalization assumption.
+
+\subsection{Computability and proof-search time}
+For a decidable checker with recognizable reflection conclusions, $H$ is
+total computable as a metamathematical matter. Enumerate accepted reflection
+files of length at most $k$, obtaining finitely many targets and their minimum
+reflection lengths. For each target, search ordinary proofs in increasing
+length until a direct proof is found. L\"ob's theorem guarantees termination.
+Compute the maximum excess.
+
+There is no useful runtime estimate in this argument. Similarly, shortest
+direct-proof search converts an accepted reflection file to an ordinary proof;
+if $H$ is sublinear, its output length satisfies the envelope bound. This does
+not give a fast conversion algorithm. The current Lean project verifies the
+finite-list and numerical results, not the computability argument or a PA
+proof-search implementation.
+
+\section{Consequences linking parts 1 and 2}
+\label{sec:consequences}
+
+\begin{theorem}[Near-unit global bounds]\label{thm:affine}
+If there is no part~1 witness, then for each integer $q\ge1$ there is a
+constant $B_q$ such that, for every target,
+\begin{equation}\label{eq:affine}
+ qd(P)\le(q+1)r(P)+qt(P)+B_q.
+\end{equation}
+In particular, for some constant $B$,
+\begin{equation}\label{eq:Flinear}
+ F_S(k,n)\le 2k+c(n+1)+B
+ \le (2+c+B)(k+n+1).
+\end{equation}
+\end{theorem}
+\begin{proof}
+Choose $K$ from \eqref{eq:cutoff} and put $B_q=qH(K)$. If $r(P)\ge K$,
+then $qe(P)<r(P)$. If $r(P)<K$, then $qe(P)\le qH(K)$. In both cases,
+\[
+ qe(P)\le r(P)+qH(K).
+\]
+Multiply $d(P)\le r(P)+t(P)+e(P)$ by $q$ and substitute this estimate to
+obtain \eqref{eq:affine}. Set $q=1$ and maximize over $r(P)\le k$,
+$s(P)\le n$ to get the first inequality in \eqref{eq:Flinear}; elementary
+arithmetic gives the second.
+\end{proof}
+
+\begin{theorem}[Nonlinearity gives every fixed factor]\label{thm:nonlinear}
+Suppose there is no constant $C$ such that
+$F_S(k,n)\le C(k+n+1)$ for all $k,n$. Then, for every integer $a\ge1$ and
+every cutoff $K$, there is a target $P$ with
+\begin{equation}\label{eq:anyfactor}
+ r(P)\ge K,\qquad d(P)\ge a r(P)+c(s(P)+1).
+\end{equation}
+For every $a\ge2$ this supplies a part~1 family with $\delta=a-1$.
+\end{theorem}
+\begin{proof}
+Suppose \eqref{eq:anyfactor} fails for particular $a,K$. For all targets
+with $r(P)\ge K$ we have $d(P)<ar(P)+t(P)$. For a target with $r(P)<K$,
+\eqref{eq:universal-envelope} and $a\ge1$ give
+\[
+ d(P)\le r(P)+t(P)+H(K)\le ar(P)+t(P)+H(K).
+\]
+Hence this last bound holds for every target. Maximizing gives
+\[
+ F_S(k,n)\le ak+c(n+1)+H(K)
+ \le (a+c+H(K))(k+n+1),
+\]
+contrary to the hypothesis. Select witnesses with $r(P_i)\ge i+1$ to obtain
+divergence.
+\end{proof}
+
+These theorems refine the research alternatives. A negative answer to part~1
+would imply the positive answer to part~2 in the stronger linear form.
+A superpolynomial lower bound for part~2 would imply part~1; even failure of
+all joint linear bounds suffices. The reverse implication is not established:
+a fixed-factor gap can coexist with a linear bound having a larger constant.
+Thus proving a polynomial upper bound alone would not rule out part~1.
+
+\status{The integer statements and implications in this section are proved
+in \texttt{Envelope.lean}. Their hypotheses are not proved for the actual
+PA-bin length functions. The result narrows the alternatives without selecting
+one of them.}
+
+\section{Earlier chosen-presentation constructions}
+\label{sec:early}
+
+The first attempts deliberately used the freedom to choose $S$ in part~1.
+Their essential mechanism was a slow finite test built into the checker.
+This section records the mathematical constructions and their limitations;
+the archive retains the complete earlier manuscript and tagged-checker note.
+
+\subsection{Finite diagonal hardness and the first-pass certificate}
+For a consistent ordinary base calculus $B$, a parameterized diagonal family
+can express
+\[
+ D_n\ \longleftrightarrow\
+ \text{there is no $B$-proof of $D_n$ of written length at most $n$}.
+\]
+If a short proof existed, numeralwise verification of that particular proof
+would yield the negation of the displayed assertion, while the proof of
+$D_n$ and the diagonal equivalence yield the assertion itself. Consistency
+therefore gives $\ell_B(D_n)>n$. The bounded search actually terminates with
+a positive result, and PA can verify that finite computation, so each
+standard $D_n$ is provable. This says nothing favorable about the length of
+that verification.
+
+The first-pass project formalizes the abstract contradiction, L\"ob's rule
+from explicit derivability and diagonal hypotheses, existence of shortest
+proofs, and a quantitative transfer. In the transfer, a linear interpretation
+of source proofs gives $n<C(d_n+1)$, while
+\[
+ r_n\le a(\lfloor\log_2 n\rfloor+2),\qquad
+ s_n+1\le b(\lfloor\log_2 n\rfloor+2)
+\]
+supply a factor-two subsequence, including any fixed integer toll. Finitely
+many bounded-length files and distinct reflection conclusions prove that
+the minimum reflection lengths diverge.
+
+\status{The theorem \texttt{SeparationHypotheses.conditional\_main} is
+conditional. No value of its complete hypothesis structure for PA or the
+guarded verifier has been constructed. Its axiom audit does not remove those
+hypotheses.}
+
+\subsection{The nullary-predicate slow verifier}
+The earlier manuscript adds primitive nullary predicates $p_n$, whose binary
+names have logarithmic length. It allows the reflection axiom
+$\Box_Sp_n\to p_n$ and checks, whenever $p_n$ occurs, the finite condition
+that $D_n$ has no short $B$-proof. A parameterized diagonal construction of
+the checker formula aligns $\Box_S$ with this actual checking procedure,
+avoiding an informal circular definition.
+
+The interpretation $p_n\mapsto D_n$ takes the reflection axioms to instances
+of a fixed base-theory theorem supplied by the guard. With whole-expression
+abbreviations and the specified proof-record convention, the manuscript gives
+a linear written-length translation. It derives, under consistency of $B$,
+\[
+ |p_n|+1=\cO(\log(n+2)),\qquad
+ r_S(p_n)=\cO(\log(n+2)),\qquad d_S(p_n)>n/C-1.
+\]
+This is a proposed affirmative construction for the literal chosen-system
+clause, with a slow checker and an expanded signature. It is not the fixed
+PA-bin presentation. The actual checker arithmetization and translation have
+not been implemented end to end in Lean.
+
+An arithmetic-only variant used a recognizable family $G_n$ and a guard
+depending on the numeral instance. Although its accepted standard files agree
+with the ordinary checker's files under consistency, it fails a stronger
+uniform instantiation property: for $\tau(x)=G(x)\to G(x)$, a uniform theorem
+asserting $\Box_*\tau(\num n)$ would imply all the hard guards at once.
+That variant therefore cannot supply the agenda's additional uniform bounded
+principles. This failure motivated connective tags.
+
+\subsection{Connective tags repair the substitution defect}
+Choose an ordinary finite-basis PA calculus $B$ with primitive conjunction
+and whole-expression abbreviations. Let
+\[
+ T_0=(0=0),\qquad T_{n+1}=(0=0)\mathbin{\&}T_n,
+ \qquad P_n=T_n\mathbin{\&}D(\num n),
+\]
+where the diagonal construction is performed for the tagged formula itself,
+and $D(n)$ asserts that $P_n$ has no $B$-proof of length at most $2^n$.
+Guard indices are read from conjunction shapes, ignoring the terms in atomic
+equalities. Capture-avoiding term substitution preserves these shapes and
+cannot manufacture a new guard. MP, generalization, and universal
+instantiation preserve the required guard conditions.
+
+The guarded checker $S$ runs the ordinary check and all the finite guard tests.
+Consistency gives truth of every standard guard, so the accepted standard
+files, conclusions, and written lengths agree with $B$. Their arithmetic
+provability predicates nevertheless differ. The guard supplies the implication
+$\Box_SP_n\to D(\num n)$; adjoining a polynomial-size proof of $T_n$
+gives the mathematical estimates
+\begin{equation}\label{eq:tagged}
+ d_S(P_n)>2^n,\qquad r_S(P_n)\le a(n+1)^d,\qquad
+ s(P_n)+1\le b(n+1).
+\end{equation}
+These estimates imply a factor-two subsequence and superpolynomial $F_S$.
+Their proving theory and box are both the chosen guarded $S$.
+
+For the ordinary box, the same family has short proofs of $\Box_BP_n$.
+Consequently an ordinary reflection proof, or a bridge proof
+$\Box_BP_n\to\Box_SP_n$, would complete a direct proof after polynomial
+additional work. The construction therefore also supplies the mathematical
+bridge obstruction
+\[
+ \ell_B(\Box_BP_n\to P_n)+q_1(n)>2^n,\qquad
+ \ell_B(\Box_BP_n\to\Box_SP_n)+q_2(n)>2^n
+\]
+for suitable polynomials $q_1,q_2$ under its stated proof-cost conventions.
+Identity of standard proof files does not furnish cheap internal agreement
+between the boxes.
+
+\status{\texttt{TaggedSyntax.lean} proves concrete syntax, substitution,
+guard, and expanded-trace invariants. \texttt{TaggedBounds.lean} proves the
+numerical consequences of estimates such as \eqref{eq:tagged}. The ordinary
+checker, diagonal arithmetization, guard truth, and the PA proof-length
+estimates still have unformalized components. This is a mathematical
+chosen-presentation construction with partial certificates, not a complete
+Lean solution of part~1 or an answer about $F_{\PAbin}$.}
+
+\section{The conditional polynomial upper-bound route}
+\label{sec:upper}
+
+Put $R_A=(\Box A\to A)$ and suppose a proof of $R_A$ has length $k$, with
+$|A|=n$. A formalized L\"ob conversion has the following form:
+\[
+ \text{proof of }R_A
+ \ \leadsto\ \text{proof of }\Box R_A
+ \ \leadsto\ \text{proof of }\Box A
+ \ \leadsto\ \text{proof of }A.
+\]
+The middle step uses the internal L\"ob theorem
+$\Box(\Box A\to A)\to\Box A$; the last step uses the original $R_A$.
+
+The audit project makes the required quantitative operations explicit.
+Suppose, for fixed natural constants and exponents, that:
+\begin{itemize}
+\item internalizing the given proof costs at most $u(k+n+1)^d$;
+\item the internal L\"ob instance has a proof of length at most $v(n+1)^e$;
+\item MP combines two proofs with their summed lengths plus
+      $m(|X|+|Y|+1)$;
+\item boxed formulas and reflection formulas have sizes at most
+      $b(|X|+1)$ and $r_0(|X|+1)$, respectively.
+\end{itemize}
+Define
+\[
+ W=m\bigl(b(r_0+3)+2\bigr),\qquad D=\max\{d,e,1\},\qquad
+ K=1+u+v+W.
+\]
+Then the constructed proof has length at most
+\begin{equation}\label{eq:polyupper}
+ k+u(k+n+1)^d+v(n+1)^e+W(n+1)
+ \le K(k+n+1)^D.
+\end{equation}
+If $d\le1$, the sharper bound is
+\begin{equation}\label{eq:linear-premise}
+ (u+1)k+(u+v+W)(n+1)^{\max\{e,1\}}.
+\end{equation}
+
+The logical internal L\"ob theorem is also derived from explicit HBL and
+fixed-point inputs. For a fixed point $G\leftrightarrow(\Box G\to A)$,
+the standard derivation gives $\Box G\to\Box A$, then $R_A\to G$, then
+$\Box R_A\to\Box G\to\Box A$. This logical proof alone supplies no
+polynomial character bound for its instances in the actual checker.
+
+The first-pass logarithmic-reflection/linear-hardness estimates would rule out
+every polynomial overhead bound: along $n=2^j$, their upper budgets grow
+polynomially in $j$ while the direct lower bound is exponential. The audit
+therefore proves that the first-pass separation hypotheses and a full
+polynomial-conversion interface cannot both hold for the same presentation.
+This identifies an incompatibility of assumptions, not a contradiction in PA.
+
+\status{\texttt{AuditPass.lean} constructs the conversion and bounds its cost
+from the explicit \path{QuantitativeLobTools} interface. It proves the
+incompatibility just described.
+There is no instance of \texttt{QuantitativeLobTools} for the complete actual
+PA-bin checker. In particular, the first bullet above remains a substantive
+obligation. Even \eqref{eq:linear-premise} generally has coefficient $u+1$
+on $k$, and does not settle the near-unit question in part~1.}
+
+\section{Raw-string quotation and compact arithmetic traces}
+\label{sec:quotation}
+
+The quotation project addresses the agenda's arbitrary-string abbreviation
+grammar. Its input is a well-scoped parsed grammar: each definition is a list
+of literal alphabet symbols and references to earlier definitions. Fragments
+may cross term or formula boundaries. For $n$ definitions, set
+\[
+ M=n+\text{the total number of atoms in all right-hand sides}.
+\]
+Alphabet symbols are digits below a fixed base $b\ge2$. For an expanded word
+$w$, its summary is
+\[
+ L_w=|w|,\qquad S_w=b^{|w|},\qquad V_w=\operatorname{raw}_b(w).
+\]
+The marked base-$b$ string code is $S_w+V_w$, which retains leading zeros
+and distinguishes lengths.
+
+\subsection{A compiler that avoids printing the expanded numeral}
+For concatenation, the summaries obey
+\begin{equation}\label{eq:concat}
+ L_{xy}=L_x+L_y,\qquad S_{xy}=S_xS_y,\qquad
+ V_{xy}=V_xS_y+V_y.
+\end{equation}
+The empty word has summary $(0,1,0)$; a literal digit $a$ has summary
+$(1,b,a)$. The compiler uses three arithmetic registers per source definition
+and generates terms containing only binary numerals, addition, multiplication,
+and references to previous registers. Thus $S_w=b^{|w|}$ is a semantic
+identity; an exponentiation symbol or the full huge numeral is not printed.
+
+Lean proves, by induction through the grammar, that the generated terms have
+the three intended values. It also proves identifier framing and injectivity,
+freshness, and serialized character bounds. With
+\[
+ Q_b(M)=4(b+4)M^2+3M,
+\]
+the generated definitions use at most
+\begin{equation}\label{eq:quote-bound}
+ (6M+20)Q_b(M)
+\end{equation}
+characters. This is a bound in the parsed grammar mass, not expanded length.
+
+\subsection{Local equality certificates}
+The project adds ordinary closed-term equality proofs for the generated
+definitions. After a definition $u:=t$, the expanded equality $u=t$ is $t=t$.
+A shared proof of $\forall x\,x=x$, its universal-instantiation axiom, and MP
+prove the local equality. A restricted Enderton checker verifies the required
+axiom cases and MP records, with their actual serialization.
+
+The resulting complete local certificate has at most
+\begin{equation}\label{eq:local-bound}
+ 20+(40M+100)Q_b(M)
+\end{equation}
+characters. The theorem substituting a source-file budget $k$ explicitly
+requires $M\le k$. The complete source lexer and its connection to the
+agenda's file coding have not been verified.
+
+These local equalities express the definitions' reflexive correctness after
+expansion. They do not yet assert the original file's acceptance by the fixed
+PA-bin $\operatorname{Bew}$ predicate.
+
+\subsection{A single coded witness for the arithmetic trace}
+The next milestone packages all summaries into one natural number, rather
+than leaving an external list of semantic values. Use the injective pairing
+function
+\[
+ \pi(a,b)=(a+b)^2+a+1.
+\]
+For $a+b=z$, its values occupy the interval
+$[z^2+1,z^2+z+1]$; these intervals are disjoint, and the value determines $a$
+within the interval. A bounded-search decoder and its inverse property are
+proved in Lean. Encode a triple by $\pi(L,\pi(S,V))$, and a list by zero for
+nil and pairing for cons.
+
+The arithmetic-trace checker validates all instructions against decoded
+register values. Lean proves soundness, completeness for the intended trace,
+and rejection of missing entries. It may accept irrelevant extra entries;
+soundness identifies every register required by the program. A further
+compiler builds a compact arithmetic term for the entire encoded trace, and
+proves both acceptance and correct lookup of every source summary.
+
+For $n$ source definitions, trace packing adds at most
+\begin{equation}\label{eq:trace-bound}
+ (8n+20)(112n)
+\end{equation}
+characters. Since $n\le M$, the total bound is
+\begin{equation}\label{eq:bundle-bound}
+ 20+(40M+100)Q_b(M)+(8M+20)(112M),
+\end{equation}
+still cubic for fixed $b$. The bounded-search decoder is not claimed to run
+in polynomial time; its huge input value may itself be represented compactly.
+
+\subsection{Checked examples and their interpretation}
+A doubling grammar with 64 doublings has mass $194$ and expands to a word of
+length $2^{64}$. The generated local certificate has 49,287 characters, and
+the trace-packing extension has 55,677, for a total of 104,964. These are
+generated syntax sizes, not minimum PA proof lengths. The large code is not
+evaluated by the demo.
+
+A small boundary-crossing example expands to 13 characters, has mass $14$,
+and has a complete generated bundle of 5,443 characters. Independent Python
+diagnostics check its printed local file and numeric trace round trip; those
+diagnostics are tests, not Lean kernel proofs of the full PA-bin parser.
+
+\status{This milestone verifies the parsed-grammar compiler, written-size
+bounds, local restricted proofs, concrete arithmetic encoding, and typed trace
+checker. It does not yet give a literal PA formula for the expansion relation,
+a polynomial-size PA proof of trace correctness, full Enderton axiom checking,
+or agreement with the actual fixed $\operatorname{Bew}$. The remaining internal
+PA proof-cost step cannot be replaced by the fact that Lean proves semantic
+correctness.}
+
+\section{Proof assembly and the finite-diagonal obstruction}
+\label{sec:obstruction}
+
+The next result explains why short ordinary proofs of provability, by
+themselves, work against the desired witness. It accounts for the written cost
+of references when appending a plain proof suffix to a compressed prefix.
+
+\subsection{A concrete suffix with charged binary references}
+Suppose a reflection proof has written length $r$, the target has size $s$,
+and an independent \emph{plain} proof of $\Box P$ has length $b_0$. Define
+\[
+ L(x)=\lfloor\log_2(x+2)\rfloor+1,\qquad
+ a=(b_0+s+7)\bigl(2L(b_0+1)+5\bigr).
+\]
+The suffix construction relocates the plain proof's line references and
+appends the final MP step using the reflection conclusion. Plainness avoids
+collisions between the suffix's abbreviation definitions and the prefix's
+names. With the structured-file validity interface, Lean proves validity and
+the serialized bound
+\begin{equation}\label{eq:assembly}
+ d\le r+aL(r).
+\end{equation}
+The prefix is represented through its expanded formula history; axioms,
+implication, and generalization are parameterized. Thus the record encoding
+and reference cost are concrete, but this is not a complete PA-bin parser.
+
+\begin{proposition}[Necessary cost of separation]\label{prop:cost}
+Let $q\ge1$ and $t\ge0$. If \eqref{eq:assembly} holds and
+$(q+1)r+qt\le qd$, then
+\begin{align}
+ r+qt&\le qaL(r),\label{eq:cost-necessary}\\
+ r&\le8(qa)^2+1,\label{eq:r-obstruction}\\
+ d&\le(a+1)\bigl(8(qa)^2+4\bigr).\label{eq:d-obstruction}
+\end{align}
+\end{proposition}
+\begin{proof}
+Substitute \eqref{eq:assembly} into the separation inequality and cancel
+$qr$ to obtain \eqref{eq:cost-necessary}. The elementary estimate
+$L(r)^2\le4(r+2)$, together with $r\le qaL(r)$, gives
+$r^2\le4(qa)^2(r+2)$. If $qa=0$, then $r=0$. Otherwise, for $r\ge2$
+we have $r+2\le2r$, hence $r\le8(qa)^2$; the small cases are absorbed
+by the extra $1$ in \eqref{eq:r-obstruction}. Finally $L(r)\le r+3$ gives
+$d\le r+a(r+3)\le(a+1)(r+3)$, proving \eqref{eq:d-obstruction}.
+\end{proof}
+
+\begin{corollary}[An eventual exclusion threshold]\label{cor:exclude}
+Suppose a family satisfies
+\[
+ d_n>2^n,\qquad d_n\le r_n+a_nL(r_n),\qquad
+ a_n\le A(n+1)^e.
+\]
+For fixed $q\ge1$, set
+\[
+ C=(A+1)\bigl(8(qA)^2+4\bigr).
+\]
+Then factor $1+1/q$ separation, including any nonnegative toll, is impossible
+at every index
+\begin{equation}\label{eq:threshold}
+ n>8(C+3e)^2+1.
+\end{equation}
+\end{corollary}
+\begin{proof}
+If separation held, \eqref{eq:d-obstruction} and the bound on $a_n$ would give
+$d_n\le C(n+1)^{3e}$. The elementary growth estimate formalized in
+\texttt{polynomial\_lt\_exponential} gives
+$C(n+1)^{3e}<2^n$ under \eqref{eq:threshold}, a contradiction. The
+constants are deliberately coarse; the result excludes every sufficiently
+late index, not just some subsequence.
+\end{proof}
+
+\subsection{Why the original finite G\"odel family triggers the issue}
+For the ordinary proof predicate, let
+\[
+ B_n=\Box_{2^n}G_n,\qquad \PA\vdash G_n\leftrightarrow\neg B_n.
+\]
+Inside PA, the two cases already imply $\Box G_n$:
+\begin{enumerate}
+\item $B_n\to\Box G_n$ by forgetting the length bound.
+\item $\neg B_n\to\Box\neg B_n$ by formalized $\Sigma_1$ completeness
+      for a $\Sigma_1$ presentation of the decidable bounded-search condition.
+\item Necessitating $\neg B_n\to G_n$ and applying distribution gives
+      $\Box\neg B_n\to\Box G_n$.
+\end{enumerate}
+No consistency assumption is needed for this internal argument. Consistency
+is used externally to prove the hardness of direct proofs. With uniform
+arithmetization, this mechanism supplies a uniform theorem asserting the
+provability of the instances. Short specializations of that theorem are the
+source of the proposed polynomial plain proofs of $\Box G_n$.
+
+Completing those polynomial proof bounds for the fixed PA-bin representation
+would activate Corollary~\ref{cor:exclude}; it would not finish a positive
+part~1 witness using this family. The Lean theorem
+\texttt{finite\_diagonal\_box} checks the logical implication with its three
+object-theory inputs explicit. It does not formalize the PA diagonal lemma
+or infer one PA theorem with an object-level universal quantifier from a
+metatheoretic family of instance proofs.
+
+\subsection{A stronger-consistency family and the remaining gap}
+Consider instead
+\[
+ T=\PA+\Con(\PA),\qquad Q_n=\Con(T)\restriction n,
+\]
+using a fixed ordinary checker. If $T$ is consistent, each standard finite
+consistency instance $Q_n$ has a PA proof by finite checking. However,
+\begin{equation}\label{eq:no-uniform-box}
+ \PA\nvdash\forall n\,\Box_{\PA}Q_n.
+\end{equation}
+Here the box uses the usual represented numeral-instance function.
+
+To prove \eqref{eq:no-uniform-box}, suppose PA proved the displayed universal
+statement. Inside $T$, decidable completeness gives
+$\neg Q_n\to\Box_{\PA}\neg Q_n$. Together with $\Box_{\PA}Q_n$, this
+would imply $\Box_{\PA}\bot$, contrary to $T$'s axiom $\Con(\PA)$.
+Thus $T$ would prove $\forall n\,Q_n$, namely $\Con(T)$, contradicting the
+second incompleteness theorem for consistent $T$.
+
+This excludes the particular uniform theorem that powered the first family;
+it does not exclude all externally obtained short provability proofs. A
+suitable short PA proof of $\Box_{\PA}Q_n\to Q_n$ is still missing, as is
+the matching lower bound for the exact compressed calculus. A reflection
+proof in $T$ about the PA box would mix the two theories and would not answer
+the question. The slow-consistency variant does not automatically repair the
+route: Freund and Pakhomov obtain uniform PA-provability of the corresponding
+finite instances in their setting \cite[Corollary 2.4; Proposition 3.7]{fp}.
+
+\subsection{Why no universal cheap-box shortcut is available}
+Under $\Sigma_1$ soundness of ordinary PA, there is no total computable
+function $g$ bounding $\ell_{\PA}(\Box P)$ by $g(|P|)$ for every PA theorem
+$P$. Otherwise, on input $P$, compute the bound and inspect all PA files up
+to that length for a proof of $\Box P$. If $P$ is a theorem, the bound makes
+the search succeed; if the search succeeds, $\Sigma_1$ soundness of the proof
+predicate makes $P$ provable. This would decide PA theoremhood. This argument
+rules out a universal computable bound, not family-specific estimates.
+
+\status{The suffix construction, inequalities, threshold, and parameterized
+finite-diagonal logic are Lean-verified. The arithmetical arguments about
+$T$, the uniform boxed families, and theoremhood undecidability are
+mathematical arguments in this report; they are not complete PA
+formalizations in the supplied projects.}
+
+\section{What remains for ordinary PA-bin}
+\label{sec:remaining}
+
+The work has identified both a structural target and a concrete implementation
+target. For part~1, a positive answer requires non-sublinearity of $H$ for the
+actual box, while a negative answer requires $H=o(k)$, equivalently the
+near-unit sublinear additive bound of Theorem~\ref{thm:envelope}. Merely
+showing some polynomial conversion cost chooses neither alternative.
+
+For the polynomial route in part~2, the remaining internalization chain is:
+\begin{enumerate}
+\item Connect literal input bytes, identifier decoding, and the source
+      G\"odel code to the well-scoped raw-string grammar, with a charged bound
+      relating grammar mass to file length.
+\item Write the actual PA expansion/trace formula. Generate short PA proofs
+      of the arithmetic pairing, sequence-access, and instruction-correctness
+      facts needed by the compact witness. Bound the \emph{written object
+      proofs}, not only their Lean semantics.
+\item Cover the full Enderton checker, including propositional-tautology
+      axioms, capture-avoiding substitution, generalization, MP, and the
+      abbreviation scope rules.
+\item Prove agreement with the agenda's fixed $\operatorname{Bew}$ and
+      produce the notice/internal L\"ob operations required by
+      \texttt{QuantitativeLobTools}, with explicit character bounds.
+\end{enumerate}
+These are unresolved obligations, not established lemmas to be imported on
+trust. The raw-string quotation work handles a significant representation
+obstacle, while the suffix obstruction explains why completing short-box
+proofs for the first hard family would eliminate that candidate rather than
+create the required separation.
+
+\section{Certificate ledger and local reproduction}
+\label{sec:ledger}
+
+\subsection{What the cumulative archive contains}
+All six projects are pinned to \textbf{Lean 4.19.0}. They use the libraries
+bundled with Lean and need no Mathlib checkout. The archive has this structure:
+\begin{lstlisting}
+MAIS-O11-certificates/
+  verify.sh
+  README.md
+  SHA256SUMS
+  verified-build.txt
+  projects/
+    MAISO11FirstPass/
+    MAISO11AuditPass/
+    MAISO11TaggedPass/
+    MAISO11QuotationPass/
+    MAISO11ObstructionPass/
+    MAISO11EnvelopePass/
+  research-notes/
+\end{lstlisting}
+The research notes preserve the detailed milestone accounts and the original
+slow-verifier manuscript. Read their claims with the current scope distinctions
+in this report. The projects retain their own original verification transcripts;
+\texttt{verified-build.txt} records the cumulative runner's new build.
+
+{\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.69\textwidth}@{}}
+\toprule
+Project & Certified content and principal declarations \\
+\midrule
+\endfirsthead
+\toprule Project & Certified content and principal declarations \\
+\midrule
+\endhead
+\bottomrule\endfoot
+\texttt{FirstPass} & Conditional finite diagonal contradiction, abstract
+L\"ob rule, lower-bound transfer, shortest proofs, and divergence.
+\path{MAISO11.SeparationHypotheses.conditional_main}. \\[5pt]
+\texttt{AuditPass} & Internal L\"ob logic and polynomial conversion from
+explicit quantitative operations.
+\path{MAISO11.internal_lob_axiom},
+\path{MAISO11.QuantitativeLobTools.uniform_budget},
+\path{MAISO11.QuantitativeLobTools.linear_premise_bound},
+\path{MAISO11.first_pass_and_polynomial_tools_incompatible}. \\[5pt]
+\texttt{TaggedPass} & Concrete tagged syntax and guard preservation, expanded
+trace acceptance under stated inputs, and numerical gap implications.
+\path{MAISO11.Tagged.shape_subst},
+\path{MAISO11.Tagged.guarded_instantiation_axiom},
+\path{MAISO11.Tagged.no_polynomial_bridges}. \\[5pt]
+\texttt{QuotationPass} & Raw-string compiler, local certificates, arithmetic
+trace checker, compact witness, and serialized cost. In namespace
+\path{MAISO11.Quotation}:
+\path{compile_correct}, \path{compile_certificate_characters},
+\path{compiled_localCertificate_checked}, \path{compiled_trace_sound},
+\path{packedWitness_checked}, \path{compiled_bundle_characters}. \\[5pt]
+\texttt{ObstructionPass} & Valid serialized suffix and explicit cost;
+separation obstruction and eventual threshold; abstract finite-diagonal
+logic. In namespace \path{MAISO11.Obstruction}:
+\path{Suffix.appendBoxSuffix_normalized},
+\path{separation_reflection_bound}, \path{no_separation_after},
+\path{finite_diagonal_box}. \\[5pt]
+\texttt{EnvelopePass} & Exact negative condition, affine bounds, and arbitrary
+factor consequence. In namespace \path{MAISO11.Envelope.Lengths}:
+\path{noSpeedup_iff_sublinear_envelope},
+\path{noSpeedup_iff_sublinear_converter},
+\path{noSpeedup_near_unit_affine},
+\path{noSpeedup_overhead_affine},
+\path{not_linear_overhead_arbitrary_factor}.
+Finite files: \path{MAISO11.Envelope.FiniteFiles.toLengths}. \\
+\end{longtable}
+}
+
+\subsection{Run the certificates on a Mac}
+Download \texttt{MAIS-O11-certificates.zip} to Downloads. The following uses
+a fresh temporary folder, so it also works when repeating the verification:
+\begin{lstlisting}[language=bash]
+mais_check_dir="$(mktemp -d "${TMPDIR:-/tmp}/mais-o11.XXXXXX")"
+unzip -q "$HOME/Downloads/MAIS-O11-certificates.zip" -d "$mais_check_dir"
+cd "$mais_check_dir/MAIS-O11-certificates"
+bash verify.sh
+\end{lstlisting}
+The runner locates \texttt{lake}, including the usual
+\texttt{\$HOME/.elan/bin/lake} fallback, and rebuilds every project. It then
+runs each \texttt{Audit.lean} with warnings treated as errors. The toolchain
+file selects Lean~4.19.0; Elan may download that release if it is not already
+installed. The runner prints a final success message only if all six projects
+pass. It rebuilds the proof terms; it does not just print a saved transcript.
+
+To recheck only the latest result from the archive root:
+\begin{lstlisting}[language=bash]
+cd projects/MAISO11EnvelopePass
+lake build
+lake env lean -DwarningAsError=true Audit.lean
+\end{lstlisting}
+The quotation demo is optional and is not needed for the theorem checks:
+\begin{lstlisting}[language=bash]
+cd projects/MAISO11QuotationPass
+lake exe quotationdemo
+\end{lstlisting}
+Run that last block from the archive root, rather than from inside the envelope
+project. The independent Python diagnostics described in the quotation
+project's README are separate tests of printed examples.
+
+\subsection{How to interpret the audit}
+The audited theorem dependencies are contained in Lean's standard logical
+axioms \texttt{propext}, \texttt{Quot.sound}, and
+\texttt{Classical.choice}; some theorems need fewer or none. The supplied
+Lean source has no admitted proofs, custom axiom declarations,
+\texttt{native\_decide} proofs, or unsafe declarations.
+
+An axiom report is \emph{not} a list of a theorem's hypotheses. A conditional
+theorem may have no nonstandard axioms while still taking the desired
+arithmetization or proof-cost estimate as a parameter. Read its printed type
+and the interface definitions. Moreover, lengths in these theorems refer to
+the specified object certificates; they do not count Lean source characters,
+tactic steps, or compiled \texttt{.olean} bytes.
+
+\subsection{Compile this report}
+The TeX source is self-contained, with its bibliography included. A standard
+TeX Live or MacTeX installation can produce the matching PDF using:
+\begin{lstlisting}[language=bash]
+pdflatex -halt-on-error MAIS-O11-progress-report.tex
+pdflatex -halt-on-error MAIS-O11-progress-report.tex
+\end{lstlisting}
+Two passes resolve the table of contents and cross-references. The PDF and
+TeX contain the same consolidated account; the companion archive supplies
+the executable certificates and detailed source notes.
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{References}
+\begin{thebibliography}{9}
+\bibitem{mais}
+MAIS project. \emph{Does L\"ob's rule shorten proofs?} (MAIS-O11),
+\emph{MAIS-A1}, Sections 2--3 and Question 3.6, and MAIS-O10.
+Uploaded source documents used in this development; copies are included in
+the research-notes directory.
+\url{https://github.com/lionellevine/MAIS}.
+
+\bibitem{enderton}
+Herbert B. Enderton. \emph{A Mathematical Introduction to Logic},
+second edition. Academic Press, 2001. Section 2.4.
+
+\bibitem{critch}
+Andrew Critch. A parametric, resource-bounded generalization of L\"ob's
+theorem, and a robust cooperation criterion for open-source game theory.
+\emph{Journal of Symbolic Logic} 84(4), 1368--1381, 2019.
+\url{https://arxiv.org/abs/1602.04184}.
+
+\bibitem{pudlak}
+Pavel Pudl\'ak. The lengths of proofs. In Samuel R. Buss, editor,
+\emph{Handbook of Proof Theory}, pp. 547--637. Elsevier, 1998.
+\url{https://users.math.cas.cz/~pudlak/length.pdf}.
+
+\bibitem{finite}
+Pavel Pudl\'ak. Incompleteness in the finite domain.
+\emph{Bulletin of Symbolic Logic} 23(4), 405--441, 2017.
+\url{https://arxiv.org/abs/1601.01487}.
+
+\bibitem{fp}
+Anton Freund and Fedor Pakhomov. Short proofs for slow consistency.
+\emph{Notre Dame Journal of Formal Logic} 61(1), 31--49, 2020.
+\url{https://arxiv.org/abs/1712.03251}.
+\end{thebibliography}
+\end{document}

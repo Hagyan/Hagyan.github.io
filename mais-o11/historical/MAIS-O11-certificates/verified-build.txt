@@ -1,0 +1,376 @@
+
+Verifying MAISO11FirstPass
+info: mais_o11_first_pass: no previous manifest, creating one from scratch
+info: toolchain not updated; already up-to-date
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+✔ [2/3] Built FirstPass
+Build completed successfully.
+structure MAISO11.FiniteDiagonal {F : Type} (B : MAISO11.ProofSystem F) : Type
+number of parameters: 2
+fields:
+  MAISO11.FiniteDiagonal.sentence : Nat → F
+  MAISO11.FiniteDiagonal.guard : Nat → F
+  MAISO11.FiniteDiagonal.neg : F → F
+  MAISO11.FiniteDiagonal.consistent : ∀ (A : F), B.Proof A → B.Proof (self.neg A) → False
+  MAISO11.FiniteDiagonal.toGuard : (n : Nat) → B.Proof (self.sentence n) → B.Proof (self.guard n)
+  MAISO11.FiniteDiagonal.refuteShort : (n : Nat) →
+      (p : B.Proof (self.sentence n)) → B.length p ≤ n → B.Proof (self.neg (self.guard n))
+constructor:
+  MAISO11.FiniteDiagonal.mk {F : Type} {B : MAISO11.ProofSystem F} (sentence guard : Nat → F) (neg : F → F)
+    (consistent : ∀ (A : F), B.Proof A → B.Proof (neg A) → False)
+    (toGuard : (n : Nat) → B.Proof (sentence n) → B.Proof (guard n))
+    (refuteShort : (n : Nat) → (p : B.Proof (sentence n)) → B.length p ≤ n → B.Proof (neg (guard n))) :
+    MAISO11.FiniteDiagonal B
+structure MAISO11.LobConditions {F : Type} (S : MAISO11.ProofSystem F) : Type
+number of parameters: 2
+fields:
+  MAISO11.LobConditions.imp : F → F → F
+  MAISO11.LobConditions.box : F → F
+  MAISO11.LobConditions.mp : ∀ (A B : F),
+      MAISO11.Provable S (self.imp A B) → MAISO11.Provable S A → MAISO11.Provable S B
+  MAISO11.LobConditions.chain : ∀ (A B C : F),
+      MAISO11.Provable S (self.imp A B) → MAISO11.Provable S (self.imp B C) → MAISO11.Provable S (self.imp A C)
+  MAISO11.LobConditions.underMP : ∀ (A B C : F),
+      MAISO11.Provable S (self.imp A (self.imp B C)) →
+        MAISO11.Provable S (self.imp A B) → MAISO11.Provable S (self.imp A C)
+  MAISO11.LobConditions.necessitate : ∀ (A : F), MAISO11.Provable S A → MAISO11.Provable S (self.box A)
+  MAISO11.LobConditions.boxMP : ∀ (A B : F),
+      MAISO11.Provable S (self.imp (self.box (self.imp A B)) (self.imp (self.box A) (self.box B)))
+  MAISO11.LobConditions.boxBox : ∀ (A : F), MAISO11.Provable S (self.imp (self.box A) (self.box (self.box A)))
+  MAISO11.LobConditions.fixedPoint : ∀ (A : F),
+      ∃ G,
+        MAISO11.Provable S (self.imp G (self.imp (self.box G) A)) ∧
+          MAISO11.Provable S (self.imp (self.imp (self.box G) A) G)
+constructor:
+  MAISO11.LobConditions.mk {F : Type} {S : MAISO11.ProofSystem F} (imp : F → F → F) (box : F → F)
+    (mp : ∀ (A B : F), MAISO11.Provable S (imp A B) → MAISO11.Provable S A → MAISO11.Provable S B)
+    (chain : ∀ (A B C : F), MAISO11.Provable S (imp A B) → MAISO11.Provable S (imp B C) → MAISO11.Provable S (imp A C))
+    (underMP :
+      ∀ (A B C : F), MAISO11.Provable S (imp A (imp B C)) → MAISO11.Provable S (imp A B) → MAISO11.Provable S (imp A C))
+    (necessitate : ∀ (A : F), MAISO11.Provable S A → MAISO11.Provable S (box A))
+    (boxMP : ∀ (A B : F), MAISO11.Provable S (imp (box (imp A B)) (imp (box A) (box B))))
+    (boxBox : ∀ (A : F), MAISO11.Provable S (imp (box A) (box (box A))))
+    (fixedPoint :
+      ∀ (A : F), ∃ G, MAISO11.Provable S (imp G (imp (box G) A)) ∧ MAISO11.Provable S (imp (imp (box G) A) G)) :
+    MAISO11.LobConditions S
+structure MAISO11.SeparationHypotheses {F G : Type} (B : MAISO11.ProofSystem F) (S : MAISO11.ProofSystem G) : Type
+number of parameters: 4
+fields:
+  MAISO11.SeparationHypotheses.diagonal : MAISO11.FiniteDiagonal B
+  MAISO11.SeparationHypotheses.logic : MAISO11.LobConditions S
+  MAISO11.SeparationHypotheses.target : Nat → G
+  MAISO11.SeparationHypotheses.sentenceSize : G → Nat
+  MAISO11.SeparationHypotheses.C : Nat
+  MAISO11.SeparationHypotheses.C_pos : 0 < self.C
+  MAISO11.SeparationHypotheses.a : Nat
+  MAISO11.SeparationHypotheses.b : Nat
+  MAISO11.SeparationHypotheses.translate : (n : Nat) → S.Proof (self.target n) → B.Proof (self.diagonal.sentence n)
+  MAISO11.SeparationHypotheses.translationBound : ∀ (n : Nat) (p : S.Proof (self.target n)),
+      B.length (self.translate n p) ≤ self.C * (S.length p + 1)
+  MAISO11.SeparationHypotheses.reflectionProof : (n : Nat) →
+      S.Proof (self.logic.imp (self.logic.box (self.target n)) (self.target n))
+  MAISO11.SeparationHypotheses.reflectionBound : ∀ (n : Nat),
+      S.length (self.reflectionProof n) ≤ self.a * MAISO11.logSize n
+  MAISO11.SeparationHypotheses.sizeBound : ∀ (n : Nat),
+      self.sentenceSize (self.target n) + 1 ≤ self.b * MAISO11.logSize n
+  MAISO11.SeparationHypotheses.reflectionDistinct : ∀ (i j : Nat),
+      self.logic.imp (self.logic.box (self.target i)) (self.target i) =
+          self.logic.imp (self.logic.box (self.target j)) (self.target j) →
+        i = j
+  MAISO11.SeparationHypotheses.shortConclusions : Nat → List G
+  MAISO11.SeparationHypotheses.shortConclusionsComplete : ∀ (M : Nat) (A : G) (p : S.Proof A),
+      S.length p ≤ M → A ∈ self.shortConclusions M
+constructor:
+  MAISO11.SeparationHypotheses.mk {F G : Type} {B : MAISO11.ProofSystem F} {S : MAISO11.ProofSystem G}
+    (diagonal : MAISO11.FiniteDiagonal B) (logic : MAISO11.LobConditions S) (target : Nat → G) (sentenceSize : G → Nat)
+    (C : Nat) (C_pos : 0 < C) (a b : Nat) (translate : (n : Nat) → S.Proof (target n) → B.Proof (diagonal.sentence n))
+    (translationBound : ∀ (n : Nat) (p : S.Proof (target n)), B.length (translate n p) ≤ C * (S.length p + 1))
+    (reflectionProof : (n : Nat) → S.Proof (logic.imp (logic.box (target n)) (target n)))
+    (reflectionBound : ∀ (n : Nat), S.length (reflectionProof n) ≤ a * MAISO11.logSize n)
+    (sizeBound : ∀ (n : Nat), sentenceSize (target n) + 1 ≤ b * MAISO11.logSize n)
+    (reflectionDistinct :
+      ∀ (i j : Nat), logic.imp (logic.box (target i)) (target i) = logic.imp (logic.box (target j)) (target j) → i = j)
+    (shortConclusions : Nat → List G)
+    (shortConclusionsComplete : ∀ (M : Nat) (A : G) (p : S.Proof A), S.length p ≤ M → A ∈ shortConclusions M) :
+    MAISO11.SeparationHypotheses B S
+MAISO11.SeparationHypotheses.conditional_main {F G : Type} {B : MAISO11.ProofSystem F} {S : MAISO11.ProofSystem G}
+  (H : MAISO11.SeparationHypotheses B S) (C1 : Nat) :
+  (∀ (i j : Nat), i < j → H.witnessIndex C1 i < H.witnessIndex C1 j) ∧
+    (∀ (i : Nat),
+        ∃ p r,
+          MAISO11.IsShortest S p ∧
+            MAISO11.IsShortest S r ∧
+              2 * S.length r + C1 * (H.sentenceSize (H.target (H.witnessIndex C1 i)) + 1) < S.length p) ∧
+      ∀ (M : Nat), ∃ I, ∀ (i : Nat), I ≤ i → ∀ (r : S.Proof (H.reflection (H.witnessIndex C1 i))), M < S.length r
+'MAISO11.finite_diagonal_lower_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.lob_rule' does not depend on any axioms
+'MAISO11.SeparationHypotheses.direct_lower_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.SeparationHypotheses.witness_large_enough' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.SeparationHypotheses.conditional_main' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+Verifying MAISO11AuditPass
+info: MAISO11AuditPass: no previous manifest, creating one from scratch
+info: toolchain not updated; already up-to-date
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+✔ [2/5] Built FirstPass
+✔ [4/5] Built AuditPass
+Build completed successfully.
+def MAISO11.PolynomialLobBound : {F : Type} → MAISO11.ProofSystem F → (F → F → F) → (F → F) → (F → Nat) → Prop :=
+fun {F} S imp box size =>
+  ∃ C d, ∀ (A : F) (r : S.Proof (imp (box A) A)), ∃ p, S.length p ≤ C * (S.length r + size A + 1) ^ d
+structure MAISO11.QuantitativeLobTools {F : Type} (S : MAISO11.ProofSystem F) (imp : F → F → F) (box : F → F)
+  (size : F → Nat) : Type
+number of parameters: 5
+fields:
+  MAISO11.QuantitativeLobTools.mp : (A B : F) → S.Proof (imp A B) → S.Proof A → S.Proof B
+  MAISO11.QuantitativeLobTools.mpCost : Nat
+  MAISO11.QuantitativeLobTools.mp_bound : ∀ (A B : F) (p : S.Proof (imp A B)) (q : S.Proof A),
+      S.length (self.mp A B p q) ≤ S.length p + S.length q + self.mpCost * (size A + size B + 1)
+  MAISO11.QuantitativeLobTools.notice : (A : F) → S.Proof (imp (box A) A) → S.Proof (box (imp (box A) A))
+  MAISO11.QuantitativeLobTools.noticeCoeff : Nat
+  MAISO11.QuantitativeLobTools.noticeDegree : Nat
+  MAISO11.QuantitativeLobTools.notice_bound : ∀ (A : F) (r : S.Proof (imp (box A) A)),
+      S.length (self.notice A r) ≤ self.noticeCoeff * (S.length r + size A + 1) ^ self.noticeDegree
+  MAISO11.QuantitativeLobTools.lob : (A : F) → S.Proof (imp (box (imp (box A) A)) (box A))
+  MAISO11.QuantitativeLobTools.lobCoeff : Nat
+  MAISO11.QuantitativeLobTools.lobDegree : Nat
+  MAISO11.QuantitativeLobTools.lob_bound : ∀ (A : F),
+      S.length (self.lob A) ≤ self.lobCoeff * (size A + 1) ^ self.lobDegree
+  MAISO11.QuantitativeLobTools.boxCoeff : Nat
+  MAISO11.QuantitativeLobTools.box_bound : ∀ (A : F), size (box A) ≤ self.boxCoeff * (size A + 1)
+  MAISO11.QuantitativeLobTools.reflectionCoeff : Nat
+  MAISO11.QuantitativeLobTools.reflection_bound : ∀ (A : F), size (imp (box A) A) ≤ self.reflectionCoeff * (size A + 1)
+constructor:
+  MAISO11.QuantitativeLobTools.mk {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+    {size : F → Nat} (mp : (A B : F) → S.Proof (imp A B) → S.Proof A → S.Proof B) (mpCost : Nat)
+    (mp_bound :
+      ∀ (A B : F) (p : S.Proof (imp A B)) (q : S.Proof A),
+        S.length (mp A B p q) ≤ S.length p + S.length q + mpCost * (size A + size B + 1))
+    (notice : (A : F) → S.Proof (imp (box A) A) → S.Proof (box (imp (box A) A))) (noticeCoeff noticeDegree : Nat)
+    (notice_bound :
+      ∀ (A : F) (r : S.Proof (imp (box A) A)),
+        S.length (notice A r) ≤ noticeCoeff * (S.length r + size A + 1) ^ noticeDegree)
+    (lob : (A : F) → S.Proof (imp (box (imp (box A) A)) (box A))) (lobCoeff lobDegree : Nat)
+    (lob_bound : ∀ (A : F), S.length (lob A) ≤ lobCoeff * (size A + 1) ^ lobDegree) (boxCoeff : Nat)
+    (box_bound : ∀ (A : F), size (box A) ≤ boxCoeff * (size A + 1)) (reflectionCoeff : Nat)
+    (reflection_bound : ∀ (A : F), size (imp (box A) A) ≤ reflectionCoeff * (size A + 1)) :
+    MAISO11.QuantitativeLobTools S imp box size
+MAISO11.first_pass_excludes_polynomial_overhead {F G : Type} {B : MAISO11.ProofSystem F} {S : MAISO11.ProofSystem G}
+  (H : MAISO11.SeparationHypotheses B S) : ¬MAISO11.PolynomialLobBound S H.logic.imp H.logic.box H.sentenceSize
+MAISO11.internal_lob_axiom {F : Type} {S : MAISO11.ProofSystem F} (L : MAISO11.LobConditions S)
+  (precompose : ∀ (A B C : F), MAISO11.Provable S (L.imp A B) → MAISO11.Provable S (L.imp (L.imp B C) (L.imp A C)))
+  (A : F) : MAISO11.Provable S (L.imp (L.box (L.imp (L.box A) A)) (L.box A))
+MAISO11.QuantitativeLobTools.convert {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (A : F) (r : S.Proof (imp (box A) A)) : S.Proof A
+MAISO11.QuantitativeLobTools.exact_cost {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (A : F) (r : S.Proof (imp (box A) A)) :
+  S.length (T.convert A r) ≤
+    S.length r + S.length (T.lob A) + S.length (T.notice A r) +
+        T.mpCost * (size (box (imp (box A) A)) + size (box A) + 1) +
+      T.mpCost * (size (box A) + size A + 1)
+MAISO11.QuantitativeLobTools.budget {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (A : F) (r : S.Proof (imp (box A) A)) :
+  S.length (T.convert A r) ≤
+    S.length r + T.noticeCoeff * (S.length r + size A + 1) ^ T.noticeDegree + T.lobCoeff * (size A + 1) ^ T.lobDegree +
+      T.assemblyCoeff * (size A + 1)
+MAISO11.QuantitativeLobTools.uniform_budget {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (k n : Nat) (A : F) (r : S.Proof (imp (box A) A))
+  (hr : S.length r ≤ k) (hA : size A ≤ n) : ∃ p, S.length p ≤ T.coefficient * (k + n + 1) ^ T.degree
+MAISO11.QuantitativeLobTools.linear_premise_bound {F : Type} {S : MAISO11.ProofSystem F} {imp : F → F → F} {box : F → F}
+  {size : F → Nat} (T : MAISO11.QuantitativeLobTools S imp box size) (hdegree : T.noticeDegree ≤ 1) (A : F)
+  (r : S.Proof (imp (box A) A)) :
+  S.length (T.convert A r) ≤
+    (T.noticeCoeff + 1) * S.length r + (T.noticeCoeff + T.lobCoeff + T.assemblyCoeff) * (size A + 1) ^ max T.lobDegree 1
+MAISO11.first_pass_and_polynomial_tools_incompatible {F G : Type} {B : MAISO11.ProofSystem F}
+  {S : MAISO11.ProofSystem G} (H : MAISO11.SeparationHypotheses B S)
+  (T : MAISO11.QuantitativeLobTools S H.logic.imp H.logic.box H.sentenceSize) : False
+'MAISO11.first_pass_excludes_polynomial_overhead' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.internal_lob_axiom' does not depend on any axioms
+'MAISO11.QuantitativeLobTools.uniform_budget' depends on axioms: [propext, Quot.sound]
+'MAISO11.QuantitativeLobTools.linear_premise_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.first_pass_and_polynomial_tools_incompatible' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+Verifying MAISO11TaggedPass
+info: MAISO11TaggedPass: no previous manifest, creating one from scratch
+info: toolchain not updated; already up-to-date
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+✔ [2/5] Built TaggedBounds
+✔ [4/5] Built TaggedSyntax
+Build completed successfully.
+'MAISO11.Tagged.shape_subst' depends on axioms: [propext]
+'MAISO11.Tagged.decode_tag' depends on axioms: [propext]
+'MAISO11.Tagged.target_injective' depends on axioms: [propext]
+'MAISO11.Tagged.target_guard' depends on axioms: [propext]
+'MAISO11.Tagged.guarded_instantiation_axiom' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.core_guarded' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.same_accepted_traces' does not depend on any axioms
+'MAISO11.Tagged.checkedTrace_correct' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.core_trace_acceptance' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.accepted_target_guard' depends on axioms: [propext]
+'MAISO11.Tagged.tag_nodes' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.tag_true' does not depend on any axioms
+'MAISO11.Tagged.factor_two_after' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.no_polynomial_overhead' depends on axioms: [propext, Quot.sound]
+'MAISO11.Tagged.no_polynomial_bridges' depends on axioms: [propext, Quot.sound]
+
+Verifying MAISO11QuotationPass
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+✔ [2/13] Built StringQuotation
+✔ [4/13] Built QuotationWire
+✔ [6/13] Built LocalCertificates
+✔ [8/13] Built Examples
+✔ [10/13] Built ArithmeticTrace
+✔ [12/13] Built TracePacking
+Build completed successfully.
+'MAISO11.Quotation.compile_correct' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_markedCode' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.rawCode_lt_scale' depends on axioms: [propext]
+'MAISO11.Quotation.quoteFragment_weight' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_weight' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_characters' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.readIdentifier_encode' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.identifier_injective' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.fresh_register' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compiled_expansion_value' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.localFormulas_derivable' depends on axioms: [propext]
+'MAISO11.Quotation.compiled_localCertificate_checked' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_certificate_characters' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compile_certificate_with_budget' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.boundaryExample_expansion' depends on axioms: [propext]
+'MAISO11.Quotation.doubling_length' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.doubling_quoted_length' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.arithPair_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.arithUnpair_pair' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.readValue_encode' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.checkTrace_sound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.checkTrace_complete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.checkTrace_rejects_missing' depends on axioms: [propext]
+'MAISO11.Quotation.compiled_trace_sound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.packRefs_correct' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.packedWitness_checked' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.packedWitness_lookup' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Quotation.PackingProgram.expansion_eval' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.tracePacking_characters' depends on axioms: [propext, Quot.sound]
+'MAISO11.Quotation.compiled_bundle_characters' depends on axioms: [propext, Quot.sound]
+MAISO11.Quotation.compile_correct {b n : Nat} (g : Grammar b n) : (compile g).eval = fun i => quoteWord b (g.words i)
+MAISO11.Quotation.compile_certificate_characters {b n : Nat} (g : Grammar b n) :
+  (compile g).certifiedWire.length ≤ 20 + (40 * g.mass + 100) * (4 * (b + 4) * g.mass ^ 2 + 3 * g.mass)
+MAISO11.Quotation.compiled_localCertificate_checked {b n : Nat} (g : Grammar b n) :
+  checkLines [] (localCertificate (compile g).terms) = some (universalRefl :: localFormulas (compile g).terms)
+MAISO11.Quotation.compiled_trace_sound {b n : Nat} (g : Grammar b n) (z : Nat) (h : checkTrace (compile g) z = true)
+  (i : Fin n) : readValue z ↑i = some (quoteWord b (g.words i))
+MAISO11.Quotation.packedWitness_lookup {b n : Nat} (g : Grammar b n) (i : Fin n) :
+  readValue (packedWitness (compile g)) ↑i = some (quoteWord b (g.words i))
+MAISO11.Quotation.compiled_bundle_characters {b n : Nat} (g : Grammar b n) :
+  ((compile g).certifiedWire ++ (tracePacking n).wire).length ≤
+    20 + (40 * g.mass + 100) * (4 * (b + 4) * g.mass ^ 2 + 3 * g.mass) + (8 * g.mass + 20) * (112 * g.mass)
+
+Verifying MAISO11ObstructionPass
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+✔ [2/7] Built FiniteDiagonalLogic
+✔ [4/7] Built ObstructionBounds
+✔ [6/7] Built SuffixAssembly
+Build completed successfully.
+MAISO11.Obstruction.separation_requires_expensive_assembly (q direct reflection toll a : Nat)
+  (assemble : direct ≤ reflection + a * logBudget reflection) (gap : Separation q direct reflection toll) :
+  reflection + q * toll ≤ q * a * logBudget reflection
+MAISO11.Obstruction.separation_reflection_bound (q direct reflection toll a : Nat)
+  (assemble : direct ≤ reflection + a * logBudget reflection) (gap : Separation q direct reflection toll) :
+  reflection ≤ 8 * (q * a) ^ 2 + 1
+MAISO11.Obstruction.separation_direct_bound (q direct reflection toll a : Nat)
+  (assemble : direct ≤ reflection + a * logBudget reflection) (gap : Separation q direct reflection toll) :
+  direct ≤ (a + 1) * (8 * (q * a) ^ 2 + 4)
+MAISO11.Obstruction.polynomial_lt_exponential (C d n : Nat) (large : 8 * (C + d) ^ 2 + 1 < n) : C * (n + 1) ^ d < 2 ^ n
+MAISO11.Obstruction.no_separation_after (direct reflection toll a : Nat → Nat) (q A e n : Nat)
+  (assemble : ∀ (i : Nat), direct i ≤ reflection i + a i * logBudget (reflection i))
+  (cheap : ∀ (i : Nat), a i ≤ A * (i + 1) ^ e) (hard : ∀ (i : Nat), 2 ^ i < direct i)
+  (large : 8 * (obstructionCoeff q A + 3 * e) ^ 2 + 1 < n) : ¬Separation q (direct n) (reflection n) (toll n)
+MAISO11.Obstruction.finite_diagonal_box {F : Type} (L : ClassicalProvability F) (B P : F)
+  (diagonalReverse : L.proves (L.imp (L.neg B) P)) (boundedCompleteness : L.proves (L.imp (L.neg B) (L.box (L.neg B))))
+  (dropBound : L.proves (L.imp B (L.box P))) : L.proves (L.box P)
+'MAISO11.Obstruction.square_le_four_two_pow' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.logBudget_square' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.linear_log_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.separation_requires_expensive_assembly' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.separation_reflection_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.separation_direct_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.polynomial_lt_exponential' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.direct_bound_polynomial' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.no_separation_after' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.finite_diagonal_box' does not depend on any axioms
+'MAISO11.Obstruction.reflection_iff_target_of_box' does not depend on any axioms
+'MAISO11.Obstruction.boxed_reflection_to_box_target' does not depend on any axioms
+MAISO11.Obstruction.Suffix.appendBoxSuffix_valid {F : Type} (L : Rules F) (past : List F) (proof : List (Step F))
+  (boxP P : F) (i j : Nat) (reflection : past[i]? = some (L.imp boxP P)) (boxProof : ValidTrace L [] proof)
+  (conclusion : (List.map (Step.conclusion L) proof)[j]? = some boxP) :
+  ValidTrace L past (appendBoxSuffix past proof boxP P i j)
+MAISO11.Obstruction.Suffix.appendBoxSuffix_characters {F : Type} (L : Rules F) (formula : F → List Char) (past : List F)
+  (proof : List (Step F)) (boxP P : F) (i j : Nat) (reflection : past[i]? = some (L.imp boxP P))
+  (boxProof : ValidTrace L [] proof) (conclusion : (List.map (Step.conclusion L) proof)[j]? = some boxP) :
+  (traceWire L formula (appendBoxSuffix past proof boxP P i j)).length ≤
+    (traceMass L formula proof + (formula P).length + 7) * (2 * logBudget (past.length + proof.length + 1) + 3)
+'MAISO11.Obstruction.Suffix.reference_length_bounded' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.Suffix.shift_valid' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.Suffix.appendBoxSuffix_valid' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.Suffix.appendBoxSuffix_characters' depends on axioms: [propext, Quot.sound]
+MAISO11.Obstruction.Suffix.appendBoxSuffix_normalized {F : Type} (L : Rules F) (formula : F → List Char) (past : List F)
+  (proof : List (Step F)) (boxP P : F) (i j r : Nat) (prefixBudget : past.length ≤ r)
+  (reflection : past[i]? = some (L.imp boxP P)) (boxProof : ValidTrace L [] proof)
+  (conclusion : (List.map (Step.conclusion L) proof)[j]? = some boxP) :
+  (traceWire L formula (appendBoxSuffix past proof boxP P i j)).length ≤
+    assemblyCoeff (traceWire L formula proof).length (formula P).length * logBudget r
+'MAISO11.Obstruction.Suffix.appendBoxSuffix_normalized' depends on axioms: [propext, Quot.sound]
+
+Verifying MAISO11EnvelopePass
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+✔ [2/5] Built Envelope
+✔ [4/5] Built FiniteFiles
+Build completed successfully.
+MAISO11.Envelope.Lengths (α : Type) : Type
+MAISO11.Envelope.Lengths.HasSpeedup {α : Type} (M : MAISO11.Envelope.Lengths α) : Prop
+MAISO11.Envelope.Lengths.Sublinear (h : Nat → Nat) : Prop
+MAISO11.Envelope.Lengths.hasSpeedup_iff_witness_sequence {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.HasSpeedup ↔ ∃ q, 0 < q ∧ ∃ p, ∀ (i : Nat), i ≤ M.reflection (p i) ∧ M.Separated q (p i)
+MAISO11.Envelope.Lengths.noSpeedup_iff_not_hasSpeedup {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.NoSpeedup ↔ ¬M.HasSpeedup
+MAISO11.Envelope.Lengths.noSpeedup_iff_sublinear_envelope {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.NoSpeedup ↔ MAISO11.Envelope.Lengths.Sublinear M.envelope
+MAISO11.Envelope.Lengths.hasSpeedup_iff_not_sublinear_envelope {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.HasSpeedup ↔ ¬MAISO11.Envelope.Lengths.Sublinear M.envelope
+MAISO11.Envelope.Lengths.noSpeedup_iff_sublinear_converter {α : Type} (M : MAISO11.Envelope.Lengths α) :
+  M.NoSpeedup ↔
+    ∃ h, MAISO11.Envelope.Lengths.Sublinear h ∧ ∀ (p : α), M.direct p ≤ M.reflection p + M.toll p + h (M.reflection p)
+MAISO11.Envelope.Lengths.noSpeedup_near_unit_affine {α : Type} (M : MAISO11.Envelope.Lengths α) (hn : M.NoSpeedup)
+  (q : Nat) (hq : 0 < q) : ∃ B, ∀ (p : α), q * M.direct p ≤ (q + 1) * M.reflection p + q * M.toll p + B
+MAISO11.Envelope.Lengths.noSpeedup_overhead_affine {α : Type} (M : MAISO11.Envelope.Lengths α) (hn : M.NoSpeedup) :
+  ∃ B, ∀ (k n : Nat), M.overhead k n ≤ 2 * k + M.tollCoefficient * (n + 1) + B
+MAISO11.Envelope.Lengths.not_linear_overhead_implies_speedup {α : Type} (M : MAISO11.Envelope.Lengths α)
+  (h : ¬M.LinearOverhead) : M.HasSpeedup
+MAISO11.Envelope.Lengths.not_linear_overhead_arbitrary_factor {α : Type} (M : MAISO11.Envelope.Lengths α)
+  (h : ¬M.LinearOverhead) (a : Nat) (ha : 1 ≤ a) (K : Nat) :
+  ∃ p, K ≤ M.reflection p ∧ a * M.reflection p + M.toll p ≤ M.direct p
+MAISO11.Envelope.FiniteFiles.toLengths {α : Type} (a : Nat) (decode : List (Fin a) → Option α)
+  (direct reflection size : α → Nat) (c : Nat)
+  (minimum_spec : ∀ (p : α) (k : Nat), reflection p ≤ k ↔ ∃ w, w.length ≤ k ∧ decode w = some p) :
+  MAISO11.Envelope.Lengths α
+'MAISO11.Envelope.Lengths.noSpeedup_iff_not_hasSpeedup' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MAISO11.Envelope.Lengths.hasSpeedup_iff_witness_sequence' depends on axioms: [Classical.choice]
+'MAISO11.Envelope.Lengths.noSpeedup_iff_sublinear_envelope' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.Lengths.hasSpeedup_iff_not_sublinear_envelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MAISO11.Envelope.Lengths.noSpeedup_iff_sublinear_converter' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.Lengths.noSpeedup_near_unit_affine' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.Lengths.noSpeedup_overhead_affine' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.Lengths.not_linear_overhead_implies_speedup' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MAISO11.Envelope.Lengths.not_linear_overhead_arbitrary_factor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MAISO11.Envelope.FiniteFiles.mem_words' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.FiniteFiles.mem_targets' depends on axioms: [propext, Quot.sound]
+'MAISO11.Envelope.FiniteFiles.toLengths' depends on axioms: [propext, Quot.sound]
+
+All six Lean certificate projects passed.
+These checks certify the statements and hypotheses in the source; they do not resolve either PA-bin part of MAIS-O11.

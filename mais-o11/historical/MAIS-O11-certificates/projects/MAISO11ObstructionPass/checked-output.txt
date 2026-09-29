@@ -1,0 +1,62 @@
+$ lean --version
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+exit_code=0
+
+$ lake build
+✔ [2/7] Built FiniteDiagonalLogic
+✔ [4/7] Built ObstructionBounds
+✔ [6/7] Built SuffixAssembly
+Build completed successfully.
+exit_code=0
+
+$ lake env lean Audit.lean
+MAISO11.Obstruction.separation_requires_expensive_assembly (q direct reflection toll a : Nat)
+  (assemble : direct ≤ reflection + a * logBudget reflection) (gap : Separation q direct reflection toll) :
+  reflection + q * toll ≤ q * a * logBudget reflection
+MAISO11.Obstruction.separation_reflection_bound (q direct reflection toll a : Nat)
+  (assemble : direct ≤ reflection + a * logBudget reflection) (gap : Separation q direct reflection toll) :
+  reflection ≤ 8 * (q * a) ^ 2 + 1
+MAISO11.Obstruction.separation_direct_bound (q direct reflection toll a : Nat)
+  (assemble : direct ≤ reflection + a * logBudget reflection) (gap : Separation q direct reflection toll) :
+  direct ≤ (a + 1) * (8 * (q * a) ^ 2 + 4)
+MAISO11.Obstruction.polynomial_lt_exponential (C d n : Nat) (large : 8 * (C + d) ^ 2 + 1 < n) : C * (n + 1) ^ d < 2 ^ n
+MAISO11.Obstruction.no_separation_after (direct reflection toll a : Nat → Nat) (q A e n : Nat)
+  (assemble : ∀ (i : Nat), direct i ≤ reflection i + a i * logBudget (reflection i))
+  (cheap : ∀ (i : Nat), a i ≤ A * (i + 1) ^ e) (hard : ∀ (i : Nat), 2 ^ i < direct i)
+  (large : 8 * (obstructionCoeff q A + 3 * e) ^ 2 + 1 < n) : ¬Separation q (direct n) (reflection n) (toll n)
+MAISO11.Obstruction.finite_diagonal_box {F : Type} (L : ClassicalProvability F) (B P : F)
+  (diagonalReverse : L.proves (L.imp (L.neg B) P)) (boundedCompleteness : L.proves (L.imp (L.neg B) (L.box (L.neg B))))
+  (dropBound : L.proves (L.imp B (L.box P))) : L.proves (L.box P)
+'MAISO11.Obstruction.square_le_four_two_pow' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.logBudget_square' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.linear_log_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.separation_requires_expensive_assembly' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.separation_reflection_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.separation_direct_bound' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.polynomial_lt_exponential' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.direct_bound_polynomial' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.no_separation_after' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.finite_diagonal_box' does not depend on any axioms
+'MAISO11.Obstruction.reflection_iff_target_of_box' does not depend on any axioms
+'MAISO11.Obstruction.boxed_reflection_to_box_target' does not depend on any axioms
+MAISO11.Obstruction.Suffix.appendBoxSuffix_valid {F : Type} (L : Rules F) (past : List F) (proof : List (Step F))
+  (boxP P : F) (i j : Nat) (reflection : past[i]? = some (L.imp boxP P)) (boxProof : ValidTrace L [] proof)
+  (conclusion : (List.map (Step.conclusion L) proof)[j]? = some boxP) :
+  ValidTrace L past (appendBoxSuffix past proof boxP P i j)
+MAISO11.Obstruction.Suffix.appendBoxSuffix_characters {F : Type} (L : Rules F) (formula : F → List Char) (past : List F)
+  (proof : List (Step F)) (boxP P : F) (i j : Nat) (reflection : past[i]? = some (L.imp boxP P))
+  (boxProof : ValidTrace L [] proof) (conclusion : (List.map (Step.conclusion L) proof)[j]? = some boxP) :
+  (traceWire L formula (appendBoxSuffix past proof boxP P i j)).length ≤
+    (traceMass L formula proof + (formula P).length + 7) * (2 * logBudget (past.length + proof.length + 1) + 3)
+'MAISO11.Obstruction.Suffix.reference_length_bounded' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.Suffix.shift_valid' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.Suffix.appendBoxSuffix_valid' depends on axioms: [propext, Quot.sound]
+'MAISO11.Obstruction.Suffix.appendBoxSuffix_characters' depends on axioms: [propext, Quot.sound]
+MAISO11.Obstruction.Suffix.appendBoxSuffix_normalized {F : Type} (L : Rules F) (formula : F → List Char) (past : List F)
+  (proof : List (Step F)) (boxP P : F) (i j r : Nat) (prefixBudget : past.length ≤ r)
+  (reflection : past[i]? = some (L.imp boxP P)) (boxProof : ValidTrace L [] proof)
+  (conclusion : (List.map (Step.conclusion L) proof)[j]? = some boxP) :
+  (traceWire L formula (appendBoxSuffix past proof boxP P i j)).length ≤
+    assemblyCoeff (traceWire L formula proof).length (formula P).length * logBudget r
+'MAISO11.Obstruction.Suffix.appendBoxSuffix_normalized' depends on axioms: [propext, Quot.sound]
+exit_code=0
