@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Write a mathematical snippet in LaTeX and copy or save it as a PNG.">
+  <meta name="theme-color" content="#f5f1e7">
+  <title>LaTeX Snippet Studio · Andrew M. Hagy</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .studio { padding: 32px 0 62px; }
+    .studio-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; align-items:start; }
+    .studio-card { border:1px solid var(--line); background:#fbf9f3; padding:20px; min-width:0; }
+    .studio-card h2 { margin:0 0 6px; font-size:1.2rem; font-weight:normal; }
+    .studio-card p { margin:0 0 14px; color:var(--muted); font-size:.9rem; }
+    #latex-input { display:block; width:100%; min-height:220px; resize:vertical; border:1px solid #9da9a2; border-radius:2px; background:#fffefa; padding:14px; color:var(--ink); font:16px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; tab-size:2; }
+    #latex-input:focus { outline:3px solid #d7bf87; outline-offset:2px; }
+    .snippet-tools { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+    .snippet-tools button,.snippet-actions button { min-height:42px; border:1px solid #8d9690; border-radius:2px; background:#f5f1e7; color:var(--ink); padding:9px 12px; font:600 .82rem Arial,sans-serif; cursor:pointer; touch-action:manipulation; }
+    .snippet-tools button:hover,.snippet-actions button:hover { background:#eee6d3; }
+    .snippet-actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:12px; }
+    .snippet-actions .primary { color:#fff; background:#56104b; border-color:#56104b; }
+    .snippet-actions .primary:hover { background:#71125e; }
+    .preview-box { min-height:220px; padding:18px; display:grid; place-items:center; overflow:auto; background:#fff; border:1px solid var(--line); }
+    #preview { max-width:100%; color:#111; text-align:center; overflow-wrap:anywhere; }
+    #preview mjx-container { max-width:100%; overflow-x:auto; overflow-y:hidden; }
+    #preview svg { max-width:100%; height:auto; }
+    #studio-status { min-height:1.4em; margin:10px 0 0; font: .82rem/1.4 Arial,sans-serif; color:var(--muted); }
+    #studio-status[data-kind="error"] { color:#8a2d28; }
+    #studio-status[data-kind="ok"] { color:#426744; }
+    .studio-note { margin-top:22px; padding:14px 17px; border-left:4px solid var(--gold); background:#faf8f1; font-size:.9rem; }
+    .studio-note p:last-child { margin-bottom:0; }
+    .studio-links { display:flex; flex-wrap:wrap; gap:16px; font:600 .76rem Arial,sans-serif; }
+    @media(max-width:760px) {
+      .studio { padding-top:22px; }
+      .studio-grid { grid-template-columns:1fr; gap:14px; }
+      .studio-card { padding:16px; }
+      #latex-input { min-height:180px; font-size:16px; }
+      .preview-box { min-height:160px; padding:14px; }
+      .snippet-actions button { flex:1 1 135px; }
+    }
+  </style>
+</head>
+<body>
+<header><div class="frame masthead"><a class="name" href="index.html">Andrew M. Hagy<small>Logician in progress</small></a><nav aria-label="Primary navigation"><a href="index.html">Home</a><a href="about.html">About</a><a href="experience.html">Experience</a><a href="research.html">Research</a><a href="writing.html">Writing</a><a href="notes.html">Notes</a><a href="publications.html">Publications &amp; Presentations</a><a href="attribution.html">Attribution</a><a href="guestbook.html">Guestbook</a><a href="latex.html">LaTeX Packages</a><a href="misc-projects.html" aria-current="page">Misc. Projects</a></nav></div></header>
+<main class="frame">
+  <section class="page-title"><p class="eyebrow"><a href="misc-projects.html">Misc. Projects</a> · Mathematical writing</p><h1>LaTeX Snippet Studio</h1><p>Write a short mathematical expression, preview it, then copy or save it as a PNG for Messages and other apps.</p></section>
+  <section class="studio" aria-label="LaTeX snippet editor">
+    <div class="studio-grid">
+      <div class="studio-card">
+        <h2>Write</h2><p>Enter math-mode LaTeX. Use standard commands and simple math macros from the current <code>andyspackage.sty</code>.</p>
+        <textarea id="latex-input" aria-label="LaTeX source" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">\Gamma \entails \varphi \qquad \Str \satisfies \varphi</textarea>
+        <div class="snippet-tools" aria-label="Insert a command">
+          <button type="button" data-insert="\entails">\entails</button>
+          <button type="button" data-insert="\proves">\proves</button>
+          <button type="button" data-insert="\RR">\RR</button>
+          <button type="button" data-insert="\Str">\Str</button>
+          <button type="button" data-insert="\forces">\forces</button>
+          <button type="button" data-insert="\MathCal{A}">\MathCal{A}</button>
+        </div>
+        <div class="snippet-actions">
+          <button type="button" id="render-button" class="primary">Render now</button>
+          <button type="button" id="copy-button" disabled>Copy PNG</button>
+          <button type="button" id="save-button" disabled>Save PNG</button>
+          <button type="button" id="clear-button">Clear</button>
+        </div>
+      </div>
+      <div class="studio-card">
+        <h2>Preview</h2><p>Preview updates as you type. The first load may take a moment while the renderer starts.</p>
+        <div class="preview-box"><div id="preview" aria-live="polite"></div></div>
+        <p id="studio-status" role="status">Loading the current package commands…</p>
+      </div>
+    </div>
+    <aside class="studio-note"><p><strong>Privacy and package updates.</strong> Your typed snippet stays in this browser; only the public style files are fetched from GitHub. The page checks the latest <code>main</code> branch when it opens, so changes to the package can appear without editing this page.</p><p>Image copying depends on iOS Safari’s clipboard support. If copying is unavailable, use <strong>Save PNG</strong> and attach the saved image in Messages. This tool is for compact math snippets; it is not a full Overleaf replacement.</p></aside>
+    <p class="studio-links"><a href="latex.html">LaTeX package notes →</a><a href="https://github.com/Hagyan/andyspackage">Current andyspackage source →</a></p>
+  </section>
+</main>
+<footer><div class="frame">© 2026 Andrew M. Hagy · A personal working site</div></footer>
+<script>
+(() => {
+  const input = document.getElementById('latex-input');
+  const preview = document.getElementById('preview');
+  const status = document.getElementById('studio-status');
+  const renderButton = document.getElementById('render-button');
+  const copyButton = document.getElementById('copy-button');
+  const saveButton = document.getElementById('save-button');
+  let macros = {};
+  let ready = false;
+  let timer;
+  let renderSequence = 0;
+  let renderedSvg = null;
+
+  function setStatus(message, kind = '') {
+    status.textContent = message;
+    status.dataset.kind = kind;
+  }
+
+  function groupAt(source, start) {
+    if (source[start] !== '{') return null;
+    let depth = 0;
+    for (let i = start; i < source.length; i++) {
+      if (source[i] === '%' && (i === 0 || source[i - 1] !== '\\')) {
+        while (i < source.length && source[i] !== '\n') i++;
+        continue;
+      }
+      if (source[i] === '\\') { i++; continue; }
+      if (source[i] === '{') depth++;
+      if (source[i] === '}' && --depth === 0) return { value: source.slice(start + 1, i), end: i + 1 };
+    }
+    return null;
+  }
+
+  function addMacrosFromStyle(source, target) {
+    const cleaned = source.replace(/(^|[^\\])%[^\n]*/g, '$1');
+    const simple = /\\(?:newcommand|renewcommand|providecommand)\s*\*?\s*\{\s*\\([A-Za-z]+)\s*\}/g;
+    let match;
+    while ((match = simple.exec(cleaned))) {
+      const name = match[1];
+      let cursor = simple.lastIndex;
+      while (/\s/.test(cleaned[cursor] || '')) cursor++;
+      let count = 0;
+      const optional = cleaned.slice(cursor).match(/^\[(\d)\]/);
+      if (optional) { count = Number(optional[1]); cursor += optional[0].length; }
+      while (/\s/.test(cleaned[cursor] || '')) cursor++;
+      const body = groupAt(cleaned, cursor);
+      if (!body || /[@]/.test(name) || /\\(?:begin|end|RequirePackage|usepackage|NewDocumentCommand|newcommand|renewcommand)/.test(body.value)) continue;
+      target[name] = count ? [body.value, count] : body.value;
+    }
+    const xparse = /\\NewDocumentCommand\s*\{\s*\\([A-Za-z]+)\s*\}\s*\{([^{}]*)\}\s*\{/g;
+    while ((match = xparse.exec(cleaned))) {
+      const name = match[1];
+      const signature = match[2].replace(/\s/g, '');
+      if (/[^m]/.test(signature) || /[@]/.test(name)) continue;
+      const body = groupAt(cleaned, xparse.lastIndex - 1);
+      if (!body || /\\(?:begin|end|RequirePackage|usepackage|NewDocumentCommand|newcommand|renewcommand)/.test(body.value)) continue;
+      target[name] = signature.length ? [body.value, signature.length] : body.value;
+    }
+  }
+
+  async function loadMathJax() {
+    try {
+      const base = 'https://raw.githubusercontent.com/Hagyan/andyspackage/main/';
+      const files = ['andyspackage.sty', 'andysnotes.sty'];
+      const sources = await Promise.all(files.map(async file => {
+        const response = await fetch(base + file + '?v=' + Date.now(), { cache: 'no-store' });
+        if (!response.ok) throw new Error('Could not load ' + file);
+        return response.text();
+      }));
+      sources.forEach(source => addMacrosFromStyle(source, macros));
+    } catch (error) {
+      setStatus('Could not reach the current package files. Standard math still works; custom aliases may be unavailable.', 'error');
+    }
+
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']], processEscapes: true, macros },
+      svg: { fontCache: 'none' },
+      startup: { typeset: false }
+    };
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';
+    script.onload = async () => {
+      ready = true;
+      setStatus('Ready · loaded ' + Object.keys(macros).length + ' current package commands.', 'ok');
+      await render();
+    };
+    script.onerror = () => setStatus('The math renderer did not load. Check your connection and reload.', 'error');
+    document.head.appendChild(script);
+  }
+
+  async function render() {
+    if (!ready) return;
+    const sequence = ++renderSequence;
+    const source = input.value.trim();
+    copyButton.disabled = true;
+    saveButton.disabled = true;
+    renderedSvg = null;
+    if (!source) { preview.replaceChildren(); setStatus('Type a formula to begin.'); return; }
+    preview.textContent = '';
+    const math = document.createElement('span');
+    math.textContent = '\\(' + source + '\\)';
+    preview.appendChild(math);
+    try {
+      await MathJax.typesetPromise([preview]);
+      if (sequence !== renderSequence) return;
+      renderedSvg = preview.querySelector('svg');
+      if (!renderedSvg) throw new Error('No image was produced.');
+      copyButton.disabled = false;
+      saveButton.disabled = false;
+      localStorage.setItem('andy-latex-snippet', source);
+      setStatus('Rendered · your source is saved only in this browser.', 'ok');
+    } catch (error) {
+      if (sequence !== renderSequence) return;
+      preview.replaceChildren();
+      setStatus('LaTeX error. Check the command or brace pairing and try again.', 'error');
+    }
+  }
+
+  function imageBlob() {
+    return new Promise((resolve, reject) => {
+      if (!renderedSvg) return reject(new Error('Render a formula first.'));
+      const clone = renderedSvg.cloneNode(true);
+      const rect = renderedSvg.getBoundingClientRect();
+      const scale = Math.min(3, Math.max(2, window.devicePixelRatio || 2));
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      clone.setAttribute('width', String(Math.ceil(rect.width)));
+      clone.setAttribute('height', String(Math.ceil(rect.height)));
+      clone.style.background = '#ffffff';
+      const svgBlob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.ceil(rect.width * scale);
+        canvas.height = Math.ceil(rect.height * scale);
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('PNG creation failed.')), 'image/png');
+      };
+      image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not prepare the preview image.')); };
+      image.src = url;
+    });
+  }
+
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(render, 450);
+  });
+  renderButton.addEventListener('click', render);
+  document.getElementById('clear-button').addEventListener('click', () => { input.value = ''; preview.replaceChildren(); renderedSvg = null; copyButton.disabled = true; saveButton.disabled = true; localStorage.removeItem('andy-latex-snippet'); setStatus('Cleared.'); input.focus(); });
+  document.querySelectorAll('[data-insert]').forEach(button => button.addEventListener('click', () => {
+    const value = button.dataset.insert;
+    const start = input.selectionStart, end = input.selectionEnd;
+    input.setRangeText(value, start, end, 'end'); input.focus(); input.dispatchEvent(new Event('input'));
+  }));
+  copyButton.addEventListener('click', async () => {
+    try {
+      const blob = await imageBlob();
+      if (!navigator.clipboard || !window.ClipboardItem) throw new Error('Clipboard image writing is unavailable in this browser.');
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      setStatus('PNG copied. Open Messages and paste it into your conversation.', 'ok');
+    } catch (error) {
+      setStatus('Could not copy the image here. Use Save PNG, then attach it in Messages.', 'error');
+    }
+  });
+  saveButton.addEventListener('click', async () => {
+    try {
+      const blob = await imageBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a'); link.href = url; link.download = 'latex-snippet.png'; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+      setStatus('PNG saved. On iPhone, check Files or the download indicator.', 'ok');
+    } catch (error) { setStatus(error.message, 'error'); }
+  });
+  try { const saved = localStorage.getItem('andy-latex-snippet'); if (saved) input.value = saved; } catch (_) {}
+  loadMathJax();
+})();
+</script>
+</body>
+</html>
