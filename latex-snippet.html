@@ -177,7 +177,7 @@
     if (!source) { preview.replaceChildren(); setStatus('Type a formula to begin.'); return; }
     preview.textContent = '';
     const math = document.createElement('span');
-    math.textContent = '\\(' + source + '\\)';
+    math.textContent = '\\(\\displaystyle ' + source + '\\)';
     preview.appendChild(math);
     try {
       await MathJax.typesetPromise([preview]);
